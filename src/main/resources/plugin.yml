@@ -1,0 +1,4 @@
+name: SlashSpec
+version: '${project.version}'
+main: io.github.seriousguy888.slashspec.SlashSpec
+api-version: 1.20
