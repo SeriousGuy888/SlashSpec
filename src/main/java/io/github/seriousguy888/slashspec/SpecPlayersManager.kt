@@ -3,9 +3,10 @@ package io.github.seriousguy888.slashspec
 import io.github.seriousguy888.slashspec.state.StateManager
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
+import java.io.File
 
 class SpecPlayersManager(private val plugin: SlashSpec) {
-    private val stateManager = StateManager(plugin)
+    val stateManager = StateManager(plugin, File(plugin.dataFolder, "playerdata.yml"))
 
     fun togglePlayer(player: Player) {
         togglePlayer(player, SpecToggleDirection.TOGGLE)
@@ -31,7 +32,9 @@ class SpecPlayersManager(private val plugin: SlashSpec) {
         }
 
         stateManager.addPlayer(player)
+        stateManager.savePlayerData()
         player.gameMode = GameMode.SPECTATOR
+
         return true
     }
 

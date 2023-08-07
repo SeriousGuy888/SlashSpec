@@ -28,4 +28,14 @@ class PlayerState(private val plugin: SlashSpec,
             player.isFlying = isFlying
         })
     }
+
+    fun serialise(): HashMap<String, Any> {
+        val serialisation = HashMap<String, Any>()
+
+        serialisation["location"] = location
+        serialisation["gamemode"] = gameMode.name
+        serialisation["isFlying"] = isFlying
+
+        return serialisation
+    }
 }

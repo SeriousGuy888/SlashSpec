@@ -7,6 +7,7 @@ class SlashSpec : JavaPlugin() {
     val specPlayersManager = SpecPlayersManager(this)
 
     override fun onEnable() {
+        saveDefaultConfig()
         registerCommands()
     }
 
@@ -16,6 +17,6 @@ class SlashSpec : JavaPlugin() {
     }
 
     override fun onDisable() {
-        logger.info("f")
+        specPlayersManager.stateManager.savePlayerData()
     }
 }
