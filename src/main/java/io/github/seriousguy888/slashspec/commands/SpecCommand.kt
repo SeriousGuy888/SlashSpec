@@ -1,7 +1,6 @@
 package io.github.seriousguy888.slashspec.commands
 
 import io.github.seriousguy888.slashspec.SlashSpec
-import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.CommandExecutor
 import org.bukkit.command.CommandSender
@@ -11,7 +10,7 @@ class SpecCommand(private val plugin: SlashSpec) : CommandExecutor {
     private val subcommands = ArrayList<SubCommand>()
 
     init {
-        subcommands.add(SpecForceCommand())
+        subcommands.add(SpecForceCommand(plugin))
     }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
@@ -24,7 +23,6 @@ class SpecCommand(private val plugin: SlashSpec) : CommandExecutor {
             plugin.specPlayersManager.togglePlayer(sender)
 
         } else {
-            Bukkit.getLogger().info(subcommands.size.toString())
             subcommands.forEach { subcommand ->
                 if (args[0].equals(subcommand.name, true)) {
                     subcommand.execute(sender, args)
