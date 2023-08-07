@@ -93,11 +93,11 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
         if (args.size == 2) { // if user is on the <player> arg
             return Bukkit.getOnlinePlayers()
                     .map { it.name }
-                    .filter { it.startsWith(args[1]) }
+                    .filter { it.startsWith(args[1], true) }
         }
         if (args.size == 3) { // if user is on the [in/out] arg
             return listOf("in", "out")
-                    .filter { it.startsWith(args[2]) }
+                    .filter { it.startsWith(args[2], true) }
         }
 
         // after all that, just don't provide any suggestions

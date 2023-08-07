@@ -40,7 +40,7 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
         if (args.size == 1) {
             return subcommands
                     .map { it.name }
-                    .filter { it.startsWith(args[0]) }
+                    .filter { it.startsWith(args[0], true) }
         } else if (args.size >= 2) {
             subcommands.forEach { subcommand ->
                 if (args[0].equals(subcommand.name, true)) {
