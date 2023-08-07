@@ -1,8 +1,6 @@
 package io.github.seriousguy888.slashspec
 
-import io.github.seriousguy888.slashspec.state.PlayerState
 import io.github.seriousguy888.slashspec.state.StateManager
-import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 
@@ -45,17 +43,9 @@ class SpecPlayersManager(private val plugin: SlashSpec) {
             return false
         }
 
-        restorePlayerState(player, playerState)
-        return true
-    }
-
-    private fun restorePlayerState(player: Player, state: PlayerState) {
-        Bukkit.getScheduler().runTask(plugin, Runnable {
-            player.teleport(state.location)
-            player.gameMode = state.gameMode
-        })
-
+        playerState.restore(player)
         stateManager.removePlayer(player)
+        return true
     }
 }
 
