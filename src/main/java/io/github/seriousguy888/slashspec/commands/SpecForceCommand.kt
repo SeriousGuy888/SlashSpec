@@ -65,4 +65,20 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
                     NamedTextColor.RED))
         }
     }
+
+    override fun tabComplete(sender: CommandSender, args: Array<out String>): List<String> {
+        if (args.size == 2) { // if user is on the <player> arg
+            return Bukkit.getOnlinePlayers()
+                    .map { it.name }
+                    .filter { it.startsWith(args[1]) }
+        }
+        if (args.size == 3) { // if user is on the [in/out] arg
+            return listOf("in", "out")
+                    .filter { it.startsWith(args[2]) }
+        }
+
+        // after all that, just don't provide any suggestions
+        // overrides the default thing of suggesting playernames
+        return listOf()
+    }
 }

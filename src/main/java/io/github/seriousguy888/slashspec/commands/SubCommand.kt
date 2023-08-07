@@ -8,4 +8,5 @@ abstract class SubCommand {
     abstract val syntax: String
 
     abstract fun execute(sender: CommandSender, args: Array<out String>)
+    abstract fun tabComplete(sender: CommandSender, args: Array<out String>): List<String>?
 }
