@@ -4,7 +4,7 @@ import io.github.seriousguy888.slashspec.commands.SpecCommand
 import org.bukkit.plugin.java.JavaPlugin
 
 class SlashSpec : JavaPlugin() {
-    val specPlayersManager = SpecPlayersManager(this)
+    val specPlayersManager = PlayerManager(this)
 
     override fun onEnable() {
         saveDefaultConfig()

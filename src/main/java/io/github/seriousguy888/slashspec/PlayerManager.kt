@@ -5,7 +5,7 @@ import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import java.io.File
 
-class SpecPlayersManager(private val plugin: SlashSpec) {
+class PlayerManager(private val plugin: SlashSpec) {
     val stateManager = StateManager(plugin, File(plugin.dataFolder, "playerdata.yml"))
 
     fun togglePlayer(player: Player) {
