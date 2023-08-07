@@ -2,3 +2,9 @@ name: SlashSpec
 version: '${project.version}'
 main: io.github.seriousguy888.slashspec.SlashSpec
 api-version: 1.20
+commands:
+  spec:
+    description: Temporarily enter spectator mode to fly around. Run again to go back to survival.
+    permission: slashspec.spec
+    aliases:
+      - s
