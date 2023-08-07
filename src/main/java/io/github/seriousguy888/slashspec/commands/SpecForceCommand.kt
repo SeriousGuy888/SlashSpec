@@ -5,6 +5,7 @@ import io.github.seriousguy888.slashspec.SpecToggleDirection
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
+import org.bukkit.GameMode
 import org.bukkit.command.CommandSender
 
 class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
@@ -47,7 +48,29 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
             }
         }
 
-        val success = plugin.specPlayersManager.togglePlayer(targetPlayer, dir)
+        val isPlayerInSpec = plugin.specPlayersManager.isPlayerInSpec(targetPlayer)
+        if (!isPlayerInSpec && dir == SpecToggleDirection.OUT_OF_SPEC) {
+            sender.sendMessage(Component.text(
+                    "This player is not using /spec's spectator mode.",
+                    NamedTextColor.RED))
+            return
+        }
+        if ((targetPlayer.gameMode == GameMode.SPECTATOR && dir == SpecToggleDirection.INTO_SPEC)) {
+            sender.sendMessage(Component.text(
+                    "This player is already in spectator mode.",
+                    NamedTextColor.RED))
+            return
+        }
+        if (targetPlayer.gameMode == GameMode.SPECTATOR && !isPlayerInSpec) {
+            sender.sendMessage(Component.text(
+                    "This player is already in spectator mode and did not use /spec to enter it.",
+                    NamedTextColor.RED))
+            return
+        }
+
+        val success = plugin.specPlayersManager.togglePlayer(
+                player = targetPlayer,
+                dir = dir)
 
         if (success) {
             sender.sendMessage(Component.text(buildString {

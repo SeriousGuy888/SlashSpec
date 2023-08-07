@@ -1,6 +1,8 @@
 package io.github.seriousguy888.slashspec
 
 import io.github.seriousguy888.slashspec.state.StateManager
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import java.io.File
@@ -9,7 +11,9 @@ class PlayerManager(private val plugin: SlashSpec) {
     val stateManager = StateManager(plugin, File(plugin.dataFolder, "playerdata.yml"))
 
     fun togglePlayer(player: Player) {
-        togglePlayer(player, SpecToggleDirection.TOGGLE)
+        togglePlayer(
+                player = player,
+                dir = SpecToggleDirection.TOGGLE)
     }
 
     fun togglePlayer(player: Player, dir: SpecToggleDirection): Boolean {
@@ -41,14 +45,19 @@ class PlayerManager(private val plugin: SlashSpec) {
     private fun putPlayerOutOfSpec(player: Player): Boolean {
         val playerState = stateManager.getPlayer(player)
         if (playerState == null) {
-            player.sendMessage("Cannot put you back to where you were. " +
-                    "(You did not use /spec to enter spectator mode)")
+            player.sendMessage(Component.text(
+                    "You did not use /spec to enter spectator mode.",
+                    NamedTextColor.RED))
             return false
         }
 
         playerState.restore(player)
         stateManager.removePlayer(player)
         return true
+    }
+
+    fun isPlayerInSpec(player: Player): Boolean {
+        return stateManager.hasPlayer(player)
     }
 }
 

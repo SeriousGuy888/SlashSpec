@@ -60,6 +60,10 @@ class StateManager(private val plugin: SlashSpec,
         return stateMap[player.uniqueId.toString()]
     }
 
+    fun hasPlayer(player: Player): Boolean {
+        return stateMap.containsKey(player.uniqueId.toString())
+    }
+
     fun removePlayer(player: Player) {
         stateMap.remove(player.uniqueId.toString())
     }
