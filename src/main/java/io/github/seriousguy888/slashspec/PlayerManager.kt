@@ -4,7 +4,11 @@ import io.github.seriousguy888.slashspec.state.StateManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
+import org.bukkit.Material
+import org.bukkit.entity.Entity
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
 import java.io.File
 
 class PlayerManager(private val plugin: SlashSpec) {
@@ -48,8 +52,23 @@ class PlayerManager(private val plugin: SlashSpec) {
 
         stateManager.addPlayer(player)
         stateManager.savePlayerData()
-        player.gameMode = GameMode.SPECTATOR
 
+
+        // A lead can stretch a maximum of 10 blocks.
+        // https://minecraft.fandom.com/wiki/Lead
+        val nearbyEntities = player.getNearbyEntities(10.0, 10.0, 10.0)
+        nearbyEntities
+                .forEach {
+                    if (it !is LivingEntity || !it.isLeashed || it.leashHolder != player as Entity)
+                        return@forEach
+
+                    it.setLeashHolder(null)
+                    if (player.gameMode != GameMode.CREATIVE) {
+                        it.world.dropItemNaturally(it.location, ItemStack(Material.LEAD))
+                    }
+                }
+
+        player.gameMode = GameMode.SPECTATOR
         return true
     }
 
