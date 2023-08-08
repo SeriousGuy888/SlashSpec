@@ -70,6 +70,12 @@ class PlayerManager(private val plugin: SlashSpec) {
     fun isPlayerInSpec(player: Player): Boolean {
         return stateManager.hasPlayer(player)
     }
+
+    fun isPlayerGlowing(player: Player): Boolean? {
+        if (!stateManager.hasPlayer(player))
+            return null
+        return stateManager.getPlayer(player)!!.isSpecGlowing
+    }
 }
 
 /**
