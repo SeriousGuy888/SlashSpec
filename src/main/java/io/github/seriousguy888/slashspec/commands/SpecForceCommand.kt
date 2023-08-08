@@ -17,7 +17,7 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
         get() = "/spec force <player> [in/out]"
 
     override fun execute(sender: CommandSender, args: Array<out String>) {
-        if (!sender.hasPermission("slashspec.admin.force")) {
+        if (!sender.hasPermission("slashspec.force")) {
             sender.sendMessage(Component.text("Insufficient permissions.", NamedTextColor.RED))
             return
         }
@@ -48,7 +48,7 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
             }
         }
 
-        val isPlayerInSpec = plugin.specPlayersManager.isPlayerInSpec(targetPlayer)
+        val isPlayerInSpec = plugin.playerManager.isPlayerInSpec(targetPlayer)
         if (!isPlayerInSpec && dir == SpecToggleDirection.OUT_OF_SPEC) {
             sender.sendMessage(Component.text(
                     "This player is not using /spec's spectator mode.",
@@ -68,7 +68,7 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
             return
         }
 
-        val success = plugin.specPlayersManager.togglePlayer(
+        val success = plugin.playerManager.toggleSpec(
                 player = targetPlayer,
                 dir = dir)
 

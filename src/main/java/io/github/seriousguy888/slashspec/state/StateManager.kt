@@ -9,7 +9,7 @@ import java.io.File
 
 class StateManager(private val plugin: SlashSpec,
                    private val dataFileLoc: File) {
-    private val stateMap = HashMap<String /* UUID */, PlayerState>()
+    val stateMap = HashMap<String /* UUID */, PlayerState>()
     private val dataFile: FileConfiguration = YamlConfiguration.loadConfiguration(dataFileLoc)
 
     init {

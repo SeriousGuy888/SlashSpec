@@ -11,6 +11,7 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
 
     init {
         subcommands.add(SpecForceCommand(plugin))
+        subcommands.add(SpecGlowCommand(plugin))
     }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {
@@ -20,7 +21,7 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
                 return true
             }
 
-            plugin.specPlayersManager.togglePlayer(sender)
+            plugin.playerManager.toggleSpec(sender)
 
         } else {
             subcommands.forEach { subcommand ->

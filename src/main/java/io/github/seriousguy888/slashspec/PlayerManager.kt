@@ -10,13 +10,13 @@ import java.io.File
 class PlayerManager(private val plugin: SlashSpec) {
     val stateManager = StateManager(plugin, File(plugin.dataFolder, "playerdata.yml"))
 
-    fun togglePlayer(player: Player) {
-        togglePlayer(
+    fun toggleSpec(player: Player) {
+        toggleSpec(
                 player = player,
                 dir = SpecToggleDirection.TOGGLE)
     }
 
-    fun togglePlayer(player: Player, dir: SpecToggleDirection): Boolean {
+    fun toggleSpec(player: Player, dir: SpecToggleDirection): Boolean {
         return when (dir) {
             SpecToggleDirection.TOGGLE -> {
                 if (player.gameMode == GameMode.SPECTATOR) {
@@ -28,6 +28,17 @@ class PlayerManager(private val plugin: SlashSpec) {
             SpecToggleDirection.INTO_SPEC -> putPlayerIntoSpec(player)
             SpecToggleDirection.OUT_OF_SPEC -> putPlayerOutOfSpec(player)
         }
+    }
+
+    fun toggleGlow(player: Player): Boolean? {
+        val isTracked = stateManager.hasPlayer(player)
+        val playerData = stateManager.getPlayer(player)
+        if (!isTracked || playerData == null)
+            return null
+
+        playerData.isSpecGlowing = !playerData.isSpecGlowing
+
+        return playerData.isSpecGlowing
     }
 
     private fun putPlayerIntoSpec(player: Player): Boolean {
