@@ -38,12 +38,12 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         val alreadyExists = floatingHeadMap.containsKey(player)
 
         // If player is spectating from another entity's perspective
-        if(player.spectatorTarget != null) {
+        if (player.spectatorTarget != null) {
             // Don't display floating head because it can be annoying, especially
             // for the player you are spectating if you are spectating a player.
             // They would be unable to see anything because your floating head would
             // be in the way.
-            if(alreadyExists) {
+            if (alreadyExists) {
                 removeFloatingHead(player)
             }
             return
@@ -72,7 +72,10 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
             val playerIsNewViewer = !floatingHead.visibleTo.contains(it) && nearbyPlayers.contains(it)
 
             try {
-                protocolManager.sendServerPacket(it, if (playerIsNewViewer) spawnPacket else teleportPacket)
+                if (playerIsNewViewer) {
+                    protocolManager.sendServerPacket(it, spawnPacket)
+                }
+                protocolManager.sendServerPacket(it, teleportPacket)
                 protocolManager.sendServerPacket(it, metadataPacket)
             } catch (e: InvocationTargetException) {
                 e.printStackTrace()

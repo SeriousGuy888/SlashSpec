@@ -70,6 +70,7 @@ class PlayerManager(private val plugin: SlashSpec) {
                 }
 
         player.gameMode = GameMode.SPECTATOR
+        plugin.floatingHeadManager.displayHead(player)
         return true
     }
 
