@@ -72,7 +72,8 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
 
         val nameOpt = Optional.of(WrappedChatComponent.fromChatMessage(player.name)[0].handle)
 
-        val invisAndGlowing = WrappedDataValue(0,
+
+        val invisFlag = WrappedDataValue(0,
                 WrappedDataWatcher.Registry.get(java.lang.Byte::class.java),
                 (0x20).toByte()) // 0x20 - invis; 0x40 - glowing
         val customName = WrappedDataValue(2,
@@ -81,11 +82,20 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         val customNameVisible = WrappedDataValue(3,
                 WrappedDataWatcher.Registry.get(java.lang.Boolean::class.java),
                 true)
+        val armorStandFlags = WrappedDataValue(15,
+                WrappedDataWatcher.Registry.get(java.lang.Byte::class.java),
+                (0x10).toByte()) // 0x10 - marker stand: disable hitbox, allow players to click through
         val headRotations = WrappedDataValue(16,
                 WrappedDataWatcher.Registry.get(Vector3f::class.java),
-                Vector3f(player.location.pitch, player.location.yaw, 0f))
+                Vector3f(32.0f, 90.0f, 80.0f))
 
-        val metadata = listOf(invisAndGlowing, customName, customNameVisible, headRotations)
+        val metadata = listOf(
+                invisFlag,
+                customName,
+                customNameVisible,
+                armorStandFlags,
+                headRotations,
+        )
         metadataPacket.dataValueCollectionModifier.write(0, metadata)
 
 

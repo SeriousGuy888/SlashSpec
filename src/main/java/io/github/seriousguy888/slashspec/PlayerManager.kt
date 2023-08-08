@@ -51,6 +51,7 @@ class PlayerManager(private val plugin: SlashSpec) {
         }
 
         stateManager.addPlayer(player)
+        toggleGlow(player)
         stateManager.savePlayerData()
 
 
