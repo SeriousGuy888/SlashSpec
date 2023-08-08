@@ -84,9 +84,19 @@ class PlayerManager(private val plugin: SlashSpec) {
         }
 
         playerState.restore(player)
+        stopTrackingPlayerForSpec(player)
+        return true
+    }
+
+    /**
+     * Different from #putPlayerOutOfSpec, in that this simply sets it so that the player
+     * is no longer considered to be in spec.
+     *
+     * It does not change the gamemode of the player, nor does it teleport the player anywhere.
+     */
+    fun stopTrackingPlayerForSpec(player: Player) {
         stateManager.removePlayer(player)
         plugin.floatingHeadManager.removeFloatingHead(player)
-        return true
     }
 
     fun isPlayerInSpec(player: Player): Boolean {
