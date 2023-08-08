@@ -35,14 +35,26 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         // https://wiki.vg/Protocol#Spawn_Entity
 
         val protocolManager = ProtocolLibrary.getProtocolManager()
+        val alreadyExists = floatingHeadMap.containsKey(player)
+
+        // If player is spectating from another entity's perspective
+        if(player.spectatorTarget != null) {
+            // Don't display floating head because it can be annoying, especially
+            // for the player you are spectating if you are spectating a player.
+            // They would be unable to see anything because your floating head would
+            // be in the way.
+            if(alreadyExists) {
+                removeFloatingHead(player)
+            }
+            return
+        }
+
 
         val nearbyPlayers = player
                 .getNearbyEntities(visibilityRange, visibilityRange, visibilityRange)
                 .filterIsInstance<Player>()
                 .filter { it.gameMode != GameMode.SPECTATOR }
 
-
-        val alreadyExists = floatingHeadMap.containsKey(player)
         val floatingHead =
                 if (alreadyExists)
                     floatingHeadMap[player]!!
