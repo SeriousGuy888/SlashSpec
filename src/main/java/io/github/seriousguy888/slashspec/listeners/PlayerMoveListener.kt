@@ -11,8 +11,8 @@ class PlayerMoveListener(private val plugin: SlashSpec) : Listener {
         val player = event.player
         val isGlowing = plugin.playerManager.isPlayerGlowing(player) ?: return
 
-        if(isGlowing) {
-            plugin.particlePlayer.playSpecParticle(player)
+        if (isGlowing) {
+            plugin.floatingHeadManager.displayHead(player)
         }
     }
 }

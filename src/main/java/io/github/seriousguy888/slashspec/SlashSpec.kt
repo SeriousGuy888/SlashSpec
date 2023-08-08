@@ -2,7 +2,7 @@ package io.github.seriousguy888.slashspec
 
 import io.github.seriousguy888.slashspec.commands.SpecCommand
 import io.github.seriousguy888.slashspec.listeners.PlayerMoveListener
-import io.github.seriousguy888.slashspec.particles.ParticlePlayer
+import io.github.seriousguy888.slashspec.packets.FloatingHeadManager
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.plugin.java.JavaPlugin
@@ -11,8 +11,7 @@ import java.util.*
 
 class SlashSpec : JavaPlugin() {
     val playerManager = PlayerManager(this)
-
-    val particlePlayer = ParticlePlayer(this)
+    var floatingHeadManager = FloatingHeadManager(this)
 
     override fun onEnable() {
         saveDefaultConfig()
@@ -41,7 +40,7 @@ class SlashSpec : JavaPlugin() {
                     val player = Bukkit.getPlayer(UUID.fromString(it.key)) ?: return@forEach
 
                     if (player.gameMode == GameMode.SPECTATOR) {
-                        particlePlayer.playSpecParticle(player)
+                        floatingHeadManager.displayHead(player)
                     }
                 }
             }
