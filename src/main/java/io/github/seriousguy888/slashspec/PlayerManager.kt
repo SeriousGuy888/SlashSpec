@@ -84,6 +84,7 @@ class PlayerManager(private val plugin: SlashSpec) {
 
         playerState.restore(player)
         stateManager.removePlayer(player)
+        plugin.floatingHeadManager.removeFloatingHead(player)
         return true
     }
 

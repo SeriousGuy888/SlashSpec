@@ -8,6 +8,7 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent
 import com.comphenix.protocol.wrappers.WrappedDataValue
 import com.comphenix.protocol.wrappers.WrappedDataWatcher
 import io.github.seriousguy888.slashspec.SlashSpec
+import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
@@ -20,9 +21,12 @@ import java.util.*
 class FloatingHeadManager(private val plugin: SlashSpec) {
     private val floatingHeadMap = HashMap<Player, FloatingHead>()
 
+    private val visibilityRange = 32.0
+
     data class FloatingHead(
             val entityId: Int,
             val uuid: UUID,
+            var visibleTo: HashSet<Player>
     )
 
     fun displayHead(player: Player) {
@@ -32,6 +36,12 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
 
         val protocolManager = ProtocolLibrary.getProtocolManager()
 
+        val nearbyPlayers = player
+                .getNearbyEntities(visibilityRange, visibilityRange, visibilityRange)
+                .filterIsInstance<Player>()
+                .filter { it.gameMode != GameMode.SPECTATOR }
+
+
         val alreadyExists = floatingHeadMap.containsKey(player)
         val floatingHead =
                 if (alreadyExists)
@@ -39,40 +49,100 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
                 else
                     FloatingHead(
                             entityId = (Math.random() * Integer.MAX_VALUE).toInt(),
-                            uuid = UUID.randomUUID())
-        val entityId = floatingHead.entityId
-        val uuid = floatingHead.uuid
+                            uuid = UUID.randomUUID(),
+                            visibleTo = hashSetOf())
 
+        val spawnPacket = createPositionPacket(true, player, floatingHead)
+        val teleportPacket = createPositionPacket(false, player, floatingHead)
+        val metadataPacket = createMetadataPacket(player, floatingHead)
+
+        nearbyPlayers.forEach {
+            val playerIsNewViewer = !floatingHead.visibleTo.contains(it) && nearbyPlayers.contains(it)
+
+            try {
+                protocolManager.sendServerPacket(it, if (playerIsNewViewer) spawnPacket else teleportPacket)
+                protocolManager.sendServerPacket(it, metadataPacket)
+            } catch (e: InvocationTargetException) {
+                e.printStackTrace()
+            }
+        }
+
+        val destroyPacket = createDestroyPacket(floatingHead)
+        floatingHead.visibleTo
+                .filter { !nearbyPlayers.contains(it) }
+                .forEach {
+                    floatingHead.visibleTo.remove(it)
+                    try {
+                        protocolManager.sendServerPacket(it, destroyPacket)
+                    } catch (e: InvocationTargetException) {
+                        e.printStackTrace()
+                    }
+                }
+
+        floatingHead.visibleTo.addAll(nearbyPlayers)
+        floatingHeadMap[player] = floatingHead
+    }
+
+    fun removeFloatingHead(player: Player) {
+        if (!floatingHeadMap.containsKey(player))
+            return
+
+        val floatingHead = floatingHeadMap[player] ?: return
+        val protocolManager = ProtocolLibrary.getProtocolManager()
+
+        val destroyPacket = createDestroyPacket(floatingHead)
+
+        floatingHead.visibleTo.forEach {
+            try {
+                protocolManager.sendServerPacket(it, destroyPacket)
+            } catch (e: InvocationTargetException) {
+                e.printStackTrace()
+            }
+        }
+
+        floatingHeadMap.remove(player)
+    }
+
+    private fun createPositionPacket(isSpawnPacket: Boolean,
+                                     headOwner: Player,
+                                     floatingHead: FloatingHead): PacketContainer {
+        val protocolManager = ProtocolLibrary.getProtocolManager()
 
         val spawnOrTpPacket: PacketContainer
-        if (alreadyExists) {
+        if (!isSpawnPacket) {
             spawnOrTpPacket = protocolManager.createPacket(PacketType.Play.Server.ENTITY_TELEPORT)
         } else {
             spawnOrTpPacket = protocolManager.createPacket(PacketType.Play.Server.SPAWN_ENTITY)
-            spawnOrTpPacket.uuiDs.write(0, uuid)
+            spawnOrTpPacket.uuiDs.write(0, floatingHead.uuid)
             spawnOrTpPacket.entityTypeModifier.write(0, EntityType.ITEM_DISPLAY)
         }
 
-        spawnOrTpPacket.integers.write(0, entityId)
+        spawnOrTpPacket.integers.write(0, floatingHead.entityId)
 
-        spawnOrTpPacket.doubles.write(0, player.eyeLocation.x)
-        spawnOrTpPacket.doubles.write(1, player.eyeLocation.y + 0.25)
-        spawnOrTpPacket.doubles.write(2, player.eyeLocation.z)
+        spawnOrTpPacket.doubles.write(0, headOwner.eyeLocation.x)
+        spawnOrTpPacket.doubles.write(1, headOwner.eyeLocation.y + 0.25)
+        spawnOrTpPacket.doubles.write(2, headOwner.eyeLocation.z)
 
         // https://www.spigotmc.org/threads/protocollib-named_entity_spawn-angle-field.280263/
-        // https://www.desmos.com/calculator/fdzttkhgoj
-        spawnOrTpPacket.bytes.write(0, (player.location.yaw * 256f / 360f + 128).toInt().toByte())
-        spawnOrTpPacket.bytes.write(1, (-player.location.pitch * 256f / 360f).toInt().toByte())
+        // https://www.desmos.com/calculator/3ge37avign
+        spawnOrTpPacket.bytes.write(0, (headOwner.location.yaw * 256f / 360f + 128).toInt().toByte())
+        spawnOrTpPacket.bytes.write(1, (-headOwner.location.pitch * 256f / 360f).toInt().toByte())
+
+        return spawnOrTpPacket
+    }
+
+    private fun createMetadataPacket(headOwner: Player, floatingHead: FloatingHead): PacketContainer? {
+        val protocolManager = ProtocolLibrary.getProtocolManager()
 
         val metadataPacket = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA)
-        metadataPacket.integers.write(0, entityId)
+        metadataPacket.integers.write(0, floatingHead.entityId)
 
 
-        val nameOpt = Optional.of(WrappedChatComponent.fromChatMessage(player.name)[0].handle)
+        val nameOpt = Optional.of(WrappedChatComponent.fromChatMessage(headOwner.name)[0].handle)
 
         val head = ItemStack(Material.PLAYER_HEAD)
         val headMeta = head.itemMeta as SkullMeta
-        headMeta.owningPlayer = player
+        headMeta.owningPlayer = headOwner
         head.itemMeta = headMeta
 
         val invisFlag = WrappedDataValue(0,
@@ -84,9 +154,6 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         val customNameVisible = WrappedDataValue(3,
                 WrappedDataWatcher.Registry.get(java.lang.Boolean::class.java),
                 true)
-//        val translation = WrappedDataValue(10,
-//                WrappedDataWatcher.Registry.get(Vector3f::class.java),
-//                Vector3f(0.25f, -0.25f, 0.25f))
         val displayedItem = WrappedDataValue(22,
                 WrappedDataWatcher.Registry.getItemStackSerializer(false),
                 BukkitConverters.getItemStackConverter().getGeneric(head)) // displayed item
@@ -94,35 +161,25 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
                 WrappedDataWatcher.Registry.get(java.lang.Byte::class.java),
                 5.toByte()) // 5 - display type head
 
-//        metadataPacket.itemModifier.write(0, head)
-
         val metadata = listOf(
                 invisFlag,
                 customName,
                 customNameVisible,
-//                translation,
                 displayedItem,
                 displayType,
         )
         metadataPacket.dataValueCollectionModifier.write(0, metadata)
 
+        return metadataPacket
+    }
 
-        val nearby = player.getNearbyEntities(32.0, 32.0, 32.0)
-        nearby.add(player)
-        nearby.forEach {
-            if (it !is Player)
-                return@forEach
+    private fun createDestroyPacket(floatingHead: FloatingHead): PacketContainer {
+        val protocolManager = ProtocolLibrary.getProtocolManager()
 
-            try {
-                protocolManager.sendServerPacket(it, spawnOrTpPacket)
-                protocolManager.sendServerPacket(it, metadataPacket)
-            } catch (e: InvocationTargetException) {
-                e.printStackTrace()
-            }
-        }
+        val packet = protocolManager.createPacket(PacketType.Play.Server.ENTITY_DESTROY)
+        val eIds = mutableListOf(floatingHead.entityId)
+        packet.intLists.write(0, eIds)
 
-        if (!alreadyExists) {
-            floatingHeadMap[player] = floatingHead
-        }
+        return packet
     }
 }
