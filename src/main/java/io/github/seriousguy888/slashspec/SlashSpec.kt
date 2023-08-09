@@ -44,7 +44,9 @@ class SlashSpec : JavaPlugin() {
             override fun run() {
                 playerManager.stateManager.stateMap.forEach {
                     val player = Bukkit.getPlayer(UUID.fromString(it.key)) ?: return@forEach
-                    if (playerPrefsManager.get(player).isGhostMode)
+
+                    val isInSpec = playerManager.isPlayerInSpec(player)
+                    if (!isInSpec)
                         return@forEach
 
                     floatingHeadManager.displayHead(player)
