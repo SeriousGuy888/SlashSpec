@@ -11,8 +11,6 @@ import org.bukkit.command.CommandSender
 class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
     override val name: String
         get() = "force"
-    override val description: String
-        get() = "Force another player into or out of spec."
     override val syntax: String
         get() = "/spec force <player> [<in/out>]"
 

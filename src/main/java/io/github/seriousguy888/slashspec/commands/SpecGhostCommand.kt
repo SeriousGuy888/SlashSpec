@@ -10,11 +10,8 @@ import org.bukkit.entity.Player
 class SpecGhostCommand(private val plugin: SlashSpec) : SubCommand() {
     override val name: String
         get() = "ghost"
-    override val description: String
-        get() = "By default, you are visible as a floating head to non-spectators when in spec. " +
-                "Turning on ghost mode disables the floating head from being seen by non spectators."
     override val syntax: String
-        get() = "/spec ghost <enable/disable> [<player>]"
+        get() = "/spec ghost [<enable/disable>] [<player>]"
 
     private val mainPerm = "slashspec.ghost"
     private val adminPerm = "slashspec.ghost.others"
@@ -22,6 +19,18 @@ class SpecGhostCommand(private val plugin: SlashSpec) : SubCommand() {
     override fun execute(sender: CommandSender, args: Array<out String>) {
         if (!sender.hasPermission(mainPerm))
             sender.sendMessage(Component.text("Insufficient permissions.", NamedTextColor.RED))
+
+        var willBeEnabled: Boolean? = null
+        if (args.size >= 2) {
+            willBeEnabled = if (args[1].equals("enable", true)) {
+                true
+            } else if (args[1].equals("disable", true)) {
+                false
+            } else {
+                sender.sendMessage(syntax)
+                return
+            }
+        }
 
         var player = sender as Player
         if (args.size >= 3) {
@@ -39,7 +48,7 @@ class SpecGhostCommand(private val plugin: SlashSpec) : SubCommand() {
 
         val isForcingOther = player != sender
 
-        val isNowInGhostMode = plugin.playerManager.toggleGhost(player)
+        val isNowInGhostMode = plugin.playerManager.toggleGhost(player, willBeEnabled)
 
         sender.sendMessage(Component.text(
                 buildString {
@@ -57,10 +66,10 @@ class SpecGhostCommand(private val plugin: SlashSpec) : SubCommand() {
     }
 
     override fun tabComplete(sender: CommandSender, args: Array<out String>): List<String>? {
-        if(args.size == 2) {
+        if (args.size == 2) {
             return plugin.tabCompletionUtil.getCompletions(args[1], listOf("enable", "disable"))
         }
-        if(args.size == 3 && sender.hasPermission(adminPerm)) {
+        if (args.size == 3 && sender.hasPermission(adminPerm)) {
             return plugin.tabCompletionUtil.getPlayerNames(args[2])
         }
 
