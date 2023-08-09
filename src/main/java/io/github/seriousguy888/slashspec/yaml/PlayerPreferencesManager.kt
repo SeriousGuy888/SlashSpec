@@ -12,14 +12,12 @@ class PlayerPreferencesManager(private val plugin: SlashSpec,
     private var prefsFile: YamlConfiguration = YamlConfiguration.loadConfiguration(prefsFileLoc)
     private val prefsMap = HashMap<String /* UUID */, PlayerPrefs>()
 
-    data class PlayerPrefs(var isGhostMode: Boolean = false)
-
     init {
         load()
     }
 
     fun get(player: Player): PlayerPrefs {
-        return prefsMap[player.uniqueId.toString()] ?: PlayerPrefs()
+        return prefsMap[player.uniqueId.toString()] ?: PlayerPrefs.getDefault(plugin)
     }
 
     fun set(player: Player, newPrefs: PlayerPrefs) {
@@ -47,6 +45,16 @@ class PlayerPreferencesManager(private val plugin: SlashSpec,
             )
 
             prefsMap[uuid] = state
+        }
+    }
+}
+
+class PlayerPrefs(var isGhostMode: Boolean) {
+    companion object {
+        fun getDefault(plugin: SlashSpec): PlayerPrefs {
+            return PlayerPrefs(
+                    isGhostMode = plugin.configReader.ghostModeDefault
+            )
         }
     }
 }

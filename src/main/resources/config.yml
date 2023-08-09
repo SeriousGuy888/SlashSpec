@@ -1,0 +1,22 @@
+###########################
+# SLASHSPEC Configuration #
+###########################
+
+# Whether to use floating heads to display the location of spectators who have ghost mode off.
+# If this is set to false, the plugin will instead display a particle trail behind spectators
+# who have ghost mode off.
+#
+# NOTE: This feature requires ProtocolLib. If ProtocolLib is not installed, then the plugin
+# will use the particle trail as a fallback, even if this option is set to true.
+use-floating-head: true
+
+# Ghost Mode, when active, disables the feature allowing non-spectators to see someone who
+# is using /spec. It manifests as a floating head if `use-floating-head` is enabled, or as
+# a particle trail otherwise.
+#
+# if true:  Spectators will be invisible to non-spectators by default.
+# if false: ========== ==== ==   visible == ============== == =======.
+#
+# Players can still change this preference for themselves by using /spec ghost if they have
+# the required permissions.
+ghost-mode-default: false

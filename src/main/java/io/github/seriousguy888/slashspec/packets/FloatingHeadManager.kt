@@ -69,7 +69,10 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
 
         // If ProtocolLib is not installed, don't bother with the floating head stuff, and
         // instead, just play some particle effects in its place.
-        if (!isProtocolLibInstalled) {
+        //
+        // Or, if config.yml says not to use the floating head feature, then use the
+        // particles and return.
+        if (!isProtocolLibInstalled || !plugin.configReader.shouldUseFloatingHead) {
             // Spawn particles for everyone nearby except the spectator.
             nearbyPlayers.forEach {
                 it.spawnParticle(

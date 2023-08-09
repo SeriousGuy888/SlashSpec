@@ -5,6 +5,7 @@ import io.github.seriousguy888.slashspec.listeners.PlayerGameModeChangeListener
 import io.github.seriousguy888.slashspec.listeners.PlayerMoveListener
 import io.github.seriousguy888.slashspec.listeners.PlayerQuitListener
 import io.github.seriousguy888.slashspec.packets.FloatingHeadManager
+import io.github.seriousguy888.slashspec.yaml.ConfigReader
 import io.github.seriousguy888.slashspec.yaml.PlayerPreferencesManager
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
@@ -17,9 +18,9 @@ class SlashSpec : JavaPlugin() {
     val playerManager = PlayerManager(this)
     val floatingHeadManager = FloatingHeadManager(this)
     val tabCompletionUtil = TabCompletionUtil(this)
+    val configReader = ConfigReader(this)
 
     override fun onEnable() {
-        saveDefaultConfig()
         registerCommands()
         registerListeners()
         registerTasks()
