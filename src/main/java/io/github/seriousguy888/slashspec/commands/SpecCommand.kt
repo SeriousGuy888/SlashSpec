@@ -1,6 +1,8 @@
 package io.github.seriousguy888.slashspec.commands
 
 import io.github.seriousguy888.slashspec.SlashSpec
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
@@ -26,9 +28,20 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
         } else {
             subcommands.forEach { subcommand ->
                 if (args[0].equals(subcommand.name, true)) {
+                    if (!hasPermissionForSubcommand(sender, subcommand)) {
+                        sender.sendMessage(Component
+                                .text("Insufficient permissions.")
+                                .color(NamedTextColor.RED))
+                        return true
+                    }
                     subcommand.execute(sender, args)
+                    return true
                 }
             }
+
+            sender.sendMessage(Component
+                    .text("This subcommand does not exist.")
+                    .color(NamedTextColor.RED))
         }
 
         return true
@@ -39,17 +52,27 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
                                label: String,
                                args: Array<out String>): List<String>? {
         if (args.size == 1) {
-            return subcommands
-                    .map { it.name }
-                    .filter { it.startsWith(args[0], true) }
+            return plugin.tabCompletionUtil.getCompletions(args[0],
+                    subcommands
+                            .filter { hasPermissionForSubcommand(sender, it) }
+                            .map { it.name })
         } else if (args.size >= 2) {
             subcommands.forEach { subcommand ->
                 if (args[0].equals(subcommand.name, true)) {
+                    if (!hasPermissionForSubcommand(sender, subcommand))
+                        return null
                     return subcommand.tabComplete(sender, args)
                 }
             }
         }
 
         return null
+    }
+
+    private fun hasPermissionForSubcommand(sender: CommandSender, subcommand: SubCommand): Boolean {
+        if (subcommand.permission == null) {
+            return true
+        }
+        return sender.hasPermission(subcommand.permission!!)
     }
 }

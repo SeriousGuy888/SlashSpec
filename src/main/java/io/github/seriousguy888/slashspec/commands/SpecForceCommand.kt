@@ -13,13 +13,10 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
         get() = "force"
     override val syntax: String
         get() = "/spec force <player> [<in/out>]"
+    override val permission: String
+        get() = "slashspec.force"
 
     override fun execute(sender: CommandSender, args: Array<out String>) {
-        if (!sender.hasPermission("slashspec.force")) {
-            sender.sendMessage(Component.text("Insufficient permissions.", NamedTextColor.RED))
-            return
-        }
-
         // if the <player> arg has not been specified
         if (args.size <= 1) {
             sender.sendMessage(syntax)

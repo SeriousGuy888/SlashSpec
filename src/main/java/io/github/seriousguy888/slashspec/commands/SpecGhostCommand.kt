@@ -12,14 +12,12 @@ class SpecGhostCommand(private val plugin: SlashSpec) : SubCommand() {
         get() = "ghost"
     override val syntax: String
         get() = "/spec ghost [<enable/disable>] [<player>]"
+    override val permission: String
+        get() = "slashspec.ghost"
 
-    private val mainPerm = "slashspec.ghost"
     private val adminPerm = "slashspec.ghost.others"
 
     override fun execute(sender: CommandSender, args: Array<out String>) {
-        if (!sender.hasPermission(mainPerm))
-            sender.sendMessage(Component.text("Insufficient permissions.", NamedTextColor.RED))
-
         var willBeEnabled: Boolean? = null
         if (args.size >= 2) {
             willBeEnabled = if (args[1].equals("enable", true)) {
