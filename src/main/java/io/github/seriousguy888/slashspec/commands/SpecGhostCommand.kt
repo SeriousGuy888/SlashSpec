@@ -32,8 +32,10 @@ class SpecGhostCommand(private val plugin: SlashSpec) : SubCommand() {
 
         var player = sender as Player
         if (args.size >= 3) {
-            if (!sender.hasPermission(adminPerm))
+            if (!sender.hasPermission(adminPerm)) {
                 sender.sendMessage(Component.text("Insufficient permissions.", NamedTextColor.RED))
+                return
+            }
 
             val specifiedPlayer = Bukkit.getPlayer(args[2])
             if (specifiedPlayer == null) {
