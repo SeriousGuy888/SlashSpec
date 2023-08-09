@@ -3,6 +3,7 @@ package io.github.seriousguy888.slashspec
 import io.github.seriousguy888.slashspec.state.StateManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.entity.Entity
@@ -39,7 +40,7 @@ class PlayerManager(private val plugin: SlashSpec) {
         prefs.isGhostMode = to ?: !prefs.isGhostMode
         plugin.playerPrefsManager.set(player, prefs)
 
-        if(prefs.isGhostMode) {
+        if (prefs.isGhostMode) {
             plugin.floatingHeadManager.removeFloatingHead(player)
         }
 
@@ -71,6 +72,14 @@ class PlayerManager(private val plugin: SlashSpec) {
 
         player.gameMode = GameMode.SPECTATOR
         plugin.floatingHeadManager.displayHead(player)
+        player.sendActionBar(LegacyComponentSerializer
+                .legacyAmpersand()
+                .deserialize(buildString {
+                    append("&b")
+                    append(if (isPlayerInGhostMode(player)) "Invisible" else "Visible")
+                    append("&f to non-spectators. Toggle with &b/spec ghost&f.")
+                }))
+
         return true
     }
 
