@@ -16,7 +16,6 @@ class SlashSpec : JavaPlugin() {
     val playerPrefsManager = PlayerPreferencesManager(this, File(dataFolder, "playerprefs.yml"))
     val playerManager = PlayerManager(this)
     val floatingHeadManager = FloatingHeadManager(this)
-
     val tabCompletionUtil = TabCompletionUtil(this)
 
     override fun onEnable() {
@@ -24,6 +23,7 @@ class SlashSpec : JavaPlugin() {
         registerCommands()
         registerListeners()
         registerTasks()
+        checkForDependencies()
     }
 
     private fun registerCommands() {
@@ -54,6 +54,18 @@ class SlashSpec : JavaPlugin() {
         logger.info("Registered periodic tasks.")
     }
 
+    private fun checkForDependencies() {
+        if (!isProtocolLibInstalled()) {
+            logger.warning(
+                    "ProtocolLib is not installed on this server!" +
+                            "\nProtocolLib is required for the floating heads feature." +
+                            " You will need to install it from https://www.spigotmc.org/resources/protocollib.1997/" +
+                            " for the floating heads feature to work." +
+                            "\nSlashSpec will display fallback particles in place of the" +
+                            " floating heads feature.")
+        }
+    }
+
     override fun onDisable() {
         playerManager.stateManager.savePlayerData()
         playerPrefsManager.save()
@@ -61,5 +73,9 @@ class SlashSpec : JavaPlugin() {
         Bukkit.getOnlinePlayers().forEach {
             floatingHeadManager.removeFloatingHead(it)
         }
+    }
+
+    fun isProtocolLibInstalled(): Boolean {
+        return server.pluginManager.getPlugin("ProtocolLib") != null
     }
 }

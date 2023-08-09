@@ -8,8 +8,10 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent
 import com.comphenix.protocol.wrappers.WrappedDataValue
 import com.comphenix.protocol.wrappers.WrappedDataWatcher
 import io.github.seriousguy888.slashspec.SlashSpec
+import org.bukkit.Color
 import org.bukkit.GameMode
 import org.bukkit.Material
+import org.bukkit.Particle
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
@@ -20,8 +22,12 @@ import java.util.*
 
 class FloatingHeadManager(private val plugin: SlashSpec) {
     private val floatingHeadMap = HashMap<Player, FloatingHead>()
-
     private val visibilityRange = 32.0
+
+    private val isProtocolLibInstalled = plugin.isProtocolLibInstalled()
+
+    // fallback particles if protocollib is not installed
+    private val dustOptions = Particle.DustOptions(Color.WHITE, 1f)
 
     data class FloatingHead(
             val entityId: Int,
@@ -38,7 +44,6 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         if (isInGhostMode)
             return
 
-        val protocolManager = ProtocolLibrary.getProtocolManager()
         val alreadyExists = floatingHeadMap.containsKey(player)
 
         // If player is spectating from another entity's perspective
@@ -54,10 +59,28 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         }
 
 
+        // Get all nearby players in range who are in spectator mode.
+        // Does not include the spectator themselves.
         val nearbyPlayers = player
                 .getNearbyEntities(visibilityRange, visibilityRange, visibilityRange)
                 .filterIsInstance<Player>()
                 .filter { it.gameMode != GameMode.SPECTATOR }
+
+
+        // If ProtocolLib is not installed, don't bother with the floating head stuff, and
+        // instead, just play some particle effects in its place.
+        if (!isProtocolLibInstalled) {
+            // Spawn particles for everyone nearby except the spectator.
+            nearbyPlayers.forEach {
+                it.spawnParticle(
+                        Particle.REDSTONE,
+                        player.eyeLocation,
+                        25,
+                        dustOptions)
+            }
+
+            return
+        }
 
         val floatingHead =
                 if (alreadyExists)
@@ -72,6 +95,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         val teleportPacket = createPositionPacket(false, player, floatingHead)
         val metadataPacket = createMetadataPacket(player, floatingHead)
 
+        val protocolManager = ProtocolLibrary.getProtocolManager()
         nearbyPlayers.forEach {
             val playerIsNewViewer = !floatingHead.visibleTo.contains(it) && nearbyPlayers.contains(it)
 
@@ -103,6 +127,9 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
     }
 
     fun removeFloatingHead(player: Player) {
+        if (!isProtocolLibInstalled)
+            return
+
         if (!floatingHeadMap.containsKey(player))
             return
 
