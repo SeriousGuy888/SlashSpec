@@ -1,9 +1,19 @@
 name: SlashSpec
+description: |
+  Allow players to temporarily fly around in spectator mode.
+  Useful for SMP servers.
+
+author: SeriousGuy888 (billzonium trioxide)
+website: https://github.com/SeriousGuy888/SlashSpec
+
 version: '${project.version}'
 main: io.github.seriousguy888.slashspec.SlashSpec
 api-version: 1.20
+load: POSTWORLD
+
 depend:
   - ProtocolLib
+
 commands:
   spec:
     description: Temporarily enter spectator mode to fly around. Run again to go back to survival.
