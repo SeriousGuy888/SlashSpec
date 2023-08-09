@@ -1,6 +1,7 @@
 package io.github.seriousguy888.slashspec
 
 import io.github.seriousguy888.slashspec.commands.SpecCommand
+import io.github.seriousguy888.slashspec.listeners.EntityDamageByEntityListener
 import io.github.seriousguy888.slashspec.listeners.PlayerGameModeChangeListener
 import io.github.seriousguy888.slashspec.listeners.PlayerMoveListener
 import io.github.seriousguy888.slashspec.listeners.PlayerQuitListener
@@ -34,6 +35,7 @@ class SlashSpec : JavaPlugin() {
 
     private fun registerListeners() {
         val pm = server.pluginManager
+        pm.registerEvents(EntityDamageByEntityListener(), this)
         pm.registerEvents(PlayerGameModeChangeListener(this), this)
         pm.registerEvents(PlayerMoveListener(this), this)
         pm.registerEvents(PlayerQuitListener(this), this)

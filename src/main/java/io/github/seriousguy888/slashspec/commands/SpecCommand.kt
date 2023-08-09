@@ -12,6 +12,7 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
     private val subcommands = ArrayList<SubCommand>()
 
     init {
+        subcommands.add(SpecFireworkCommand(plugin))
         subcommands.add(SpecForceCommand(plugin))
         subcommands.add(SpecGhostCommand(plugin))
     }
