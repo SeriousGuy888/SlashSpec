@@ -14,7 +14,7 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
     override val description: String
         get() = "Force another player into or out of spec."
     override val syntax: String
-        get() = "/spec force <player> [in/out]"
+        get() = "/spec force <player> [<in/out>]"
 
     override fun execute(sender: CommandSender, args: Array<out String>) {
         if (!sender.hasPermission("slashspec.force")) {
@@ -91,13 +91,10 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
 
     override fun tabComplete(sender: CommandSender, args: Array<out String>): List<String> {
         if (args.size == 2) { // if user is on the <player> arg
-            return Bukkit.getOnlinePlayers()
-                    .map { it.name }
-                    .filter { it.startsWith(args[1], true) }
+            return plugin.tabCompletionUtil.getPlayerNames(args[1])
         }
         if (args.size == 3) { // if user is on the [in/out] arg
-            return listOf("in", "out")
-                    .filter { it.startsWith(args[2], true) }
+            return plugin.tabCompletionUtil.getCompletions(args[2], listOf("in", "out"))
         }
 
         // after all that, just don't provide any suggestions

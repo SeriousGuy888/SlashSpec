@@ -34,15 +34,16 @@ class PlayerManager(private val plugin: SlashSpec) {
         }
     }
 
-    fun toggleGlow(player: Player): Boolean? {
-        val isTracked = stateManager.hasPlayer(player)
-        val playerData = stateManager.getPlayer(player)
-        if (!isTracked || playerData == null)
-            return null
+    fun toggleGhost(player: Player, to: Boolean? = null): Boolean {
+        val prefs = plugin.playerPrefsManager.get(player)
+        prefs.isGhostMode = to ?: !prefs.isGhostMode
+        plugin.playerPrefsManager.set(player, prefs)
 
-        playerData.isSpecGlowing = !playerData.isSpecGlowing
+        if(prefs.isGhostMode) {
+            plugin.floatingHeadManager.removeFloatingHead(player)
+        }
 
-        return playerData.isSpecGlowing
+        return prefs.isGhostMode
     }
 
     private fun putPlayerIntoSpec(player: Player): Boolean {
@@ -51,7 +52,6 @@ class PlayerManager(private val plugin: SlashSpec) {
         }
 
         stateManager.addPlayer(player)
-        toggleGlow(player)
         stateManager.savePlayerData()
 
 
@@ -103,10 +103,8 @@ class PlayerManager(private val plugin: SlashSpec) {
         return stateManager.hasPlayer(player)
     }
 
-    fun isPlayerGlowing(player: Player): Boolean? {
-        if (!stateManager.hasPlayer(player))
-            return null
-        return stateManager.getPlayer(player)!!.isSpecGlowing
+    fun isPlayerInGhostMode(player: Player): Boolean {
+        return plugin.playerPrefsManager.get(player).isGhostMode
     }
 }
 

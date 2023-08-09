@@ -11,7 +11,7 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
 
     init {
         subcommands.add(SpecForceCommand(plugin))
-        subcommands.add(SpecGlowCommand(plugin))
+        subcommands.add(SpecGhostCommand(plugin))
     }
 
     override fun onCommand(sender: CommandSender, command: Command, label: String, args: Array<out String>): Boolean {

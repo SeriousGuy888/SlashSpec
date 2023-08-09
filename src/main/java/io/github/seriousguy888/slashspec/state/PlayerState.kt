@@ -10,7 +10,6 @@ class PlayerState(private val plugin: SlashSpec,
                   val location: Location,
                   val gameMode: GameMode,
                   val isFlying: Boolean,
-                  var isSpecGlowing: Boolean = false    // whether the player is visible to non-spectators
 ) {
     companion object {
         fun fromPlayer(player: Player, plugin: SlashSpec): PlayerState {

@@ -4,15 +4,19 @@ import io.github.seriousguy888.slashspec.commands.SpecCommand
 import io.github.seriousguy888.slashspec.listeners.PlayerGameModeChangeListener
 import io.github.seriousguy888.slashspec.listeners.PlayerMoveListener
 import io.github.seriousguy888.slashspec.packets.FloatingHeadManager
+import io.github.seriousguy888.slashspec.yaml.PlayerPreferencesManager
 import org.bukkit.Bukkit
-import org.bukkit.GameMode
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
+import java.io.File
 import java.util.*
 
 class SlashSpec : JavaPlugin() {
+    val playerPrefsManager = PlayerPreferencesManager(this, File(dataFolder, "playerprefs.yml"))
     val playerManager = PlayerManager(this)
-    var floatingHeadManager = FloatingHeadManager(this)
+    val floatingHeadManager = FloatingHeadManager(this)
+
+    val tabCompletionUtil = TabCompletionUtil(this)
 
     override fun onEnable() {
         saveDefaultConfig()
@@ -33,17 +37,14 @@ class SlashSpec : JavaPlugin() {
     }
 
     private fun registerTasks() {
-
         object : BukkitRunnable() {
             override fun run() {
                 playerManager.stateManager.stateMap.forEach {
-                    if (!it.value.isSpecGlowing)
-                        return@forEach
                     val player = Bukkit.getPlayer(UUID.fromString(it.key)) ?: return@forEach
+                    if (playerPrefsManager.get(player).isGhostMode)
+                        return@forEach
 
-                    if (player.gameMode == GameMode.SPECTATOR) {
-                        floatingHeadManager.displayHead(player)
-                    }
+                    floatingHeadManager.displayHead(player)
                 }
             }
         }.runTaskTimer(this, 0, 20)
@@ -53,5 +54,10 @@ class SlashSpec : JavaPlugin() {
 
     override fun onDisable() {
         playerManager.stateManager.savePlayerData()
+        playerPrefsManager.save()
+
+        Bukkit.getOnlinePlayers().forEach {
+            floatingHeadManager.removeFloatingHead(it)
+        }
     }
 }

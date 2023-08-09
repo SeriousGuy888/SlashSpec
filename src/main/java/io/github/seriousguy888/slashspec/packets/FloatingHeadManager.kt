@@ -34,6 +34,10 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         // https://github.com/dmulloy2/PacketWrapper/
         // https://wiki.vg/Protocol#Spawn_Entity
 
+        val isInGhostMode = plugin.playerPrefsManager.get(player).isGhostMode
+        if(isInGhostMode)
+            return
+
         val protocolManager = ProtocolLibrary.getProtocolManager()
         val alreadyExists = floatingHeadMap.containsKey(player)
 

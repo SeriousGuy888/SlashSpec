@@ -2,7 +2,6 @@ package io.github.seriousguy888.slashspec.state
 
 import io.github.seriousguy888.slashspec.SlashSpec
 import org.bukkit.GameMode
-import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.io.File
@@ -10,10 +9,26 @@ import java.io.File
 class StateManager(private val plugin: SlashSpec,
                    private val dataFileLoc: File) {
     val stateMap = HashMap<String /* UUID */, PlayerState>()
-    private val dataFile: FileConfiguration = YamlConfiguration.loadConfiguration(dataFileLoc)
+    private val dataFile = YamlConfiguration.loadConfiguration(dataFileLoc)
 
     init {
         loadPlayerData()
+    }
+
+    fun savePlayerData() {
+        // If an existing player section defines data for a player that is no longer
+        // being tracked, delete it from the file as well.
+        dataFile.getKeys(false).forEach { uuid ->
+            if (!stateMap.containsKey(uuid)) {
+                dataFile.set(uuid, null)
+            }
+        }
+
+        stateMap.forEach {
+            dataFile.set(it.key, it.value.serialise())
+        }
+
+        dataFile.save(dataFileLoc)
     }
 
     private fun loadPlayerData() {
@@ -34,22 +49,6 @@ class StateManager(private val plugin: SlashSpec,
 
             stateMap[uuid] = state
         }
-    }
-
-    fun savePlayerData() {
-        // If an existing player section defines data for a player that is no longer
-        // being tracked, delete it from the file as well.
-        dataFile.getKeys(false).forEach { uuid ->
-            if (!stateMap.containsKey(uuid)) {
-                dataFile.set(uuid, null)
-            }
-        }
-
-        stateMap.forEach {
-            dataFile.set(it.key, it.value.serialise())
-        }
-
-        dataFile.save(dataFileLoc)
     }
 
     fun addPlayer(player: Player) {
