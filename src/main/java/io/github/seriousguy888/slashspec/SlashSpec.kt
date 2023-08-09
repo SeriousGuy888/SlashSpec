@@ -3,6 +3,7 @@ package io.github.seriousguy888.slashspec
 import io.github.seriousguy888.slashspec.commands.SpecCommand
 import io.github.seriousguy888.slashspec.listeners.PlayerGameModeChangeListener
 import io.github.seriousguy888.slashspec.listeners.PlayerMoveListener
+import io.github.seriousguy888.slashspec.listeners.PlayerQuitListener
 import io.github.seriousguy888.slashspec.packets.FloatingHeadManager
 import io.github.seriousguy888.slashspec.yaml.PlayerPreferencesManager
 import org.bukkit.Bukkit
@@ -34,6 +35,7 @@ class SlashSpec : JavaPlugin() {
         val pm = server.pluginManager
         pm.registerEvents(PlayerGameModeChangeListener(this), this)
         pm.registerEvents(PlayerMoveListener(this), this)
+        pm.registerEvents(PlayerQuitListener(this), this)
     }
 
     private fun registerTasks() {
