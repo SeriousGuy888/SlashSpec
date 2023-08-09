@@ -35,7 +35,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         // https://wiki.vg/Protocol#Spawn_Entity
 
         val isInGhostMode = plugin.playerPrefsManager.get(player).isGhostMode
-        if(isInGhostMode)
+        if (isInGhostMode)
             return
 
         val protocolManager = ProtocolLibrary.getProtocolManager()
@@ -128,12 +128,17 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         val protocolManager = ProtocolLibrary.getProtocolManager()
 
         val spawnOrTpPacket: PacketContainer
-        if (!isSpawnPacket) {
-            spawnOrTpPacket = protocolManager.createPacket(PacketType.Play.Server.ENTITY_TELEPORT)
-        } else {
+        if (isSpawnPacket) {
             spawnOrTpPacket = protocolManager.createPacket(PacketType.Play.Server.SPAWN_ENTITY)
             spawnOrTpPacket.uuiDs.write(0, floatingHead.uuid)
             spawnOrTpPacket.entityTypeModifier.write(0, EntityType.ITEM_DISPLAY)
+        } else {
+            spawnOrTpPacket = protocolManager.createPacket(PacketType.Play.Server.ENTITY_TELEPORT)
+
+            // https://www.spigotmc.org/threads/protocollib-named_entity_spawn-angle-field.280263/
+            // https://www.desmos.com/calculator/3ge37avign
+            spawnOrTpPacket.bytes.write(0, (headOwner.location.yaw * 256f / 360f + 128).toInt().toByte())
+            spawnOrTpPacket.bytes.write(1, (-headOwner.location.pitch * 256f / 360f).toInt().toByte())
         }
 
         spawnOrTpPacket.integers.write(0, floatingHead.entityId)
@@ -141,11 +146,6 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         spawnOrTpPacket.doubles.write(0, headOwner.eyeLocation.x)
         spawnOrTpPacket.doubles.write(1, headOwner.eyeLocation.y + 0.25)
         spawnOrTpPacket.doubles.write(2, headOwner.eyeLocation.z)
-
-        // https://www.spigotmc.org/threads/protocollib-named_entity_spawn-angle-field.280263/
-        // https://www.desmos.com/calculator/3ge37avign
-        spawnOrTpPacket.bytes.write(0, (headOwner.location.yaw * 256f / 360f + 128).toInt().toByte())
-        spawnOrTpPacket.bytes.write(1, (-headOwner.location.pitch * 256f / 360f).toInt().toByte())
 
         return spawnOrTpPacket
     }
