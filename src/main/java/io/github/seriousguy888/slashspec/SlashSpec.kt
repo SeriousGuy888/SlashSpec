@@ -1,10 +1,7 @@
 package io.github.seriousguy888.slashspec
 
 import io.github.seriousguy888.slashspec.commands.SpecCommand
-import io.github.seriousguy888.slashspec.listeners.EntityDamageByEntityListener
-import io.github.seriousguy888.slashspec.listeners.PlayerGameModeChangeListener
-import io.github.seriousguy888.slashspec.listeners.PlayerMoveListener
-import io.github.seriousguy888.slashspec.listeners.PlayerQuitListener
+import io.github.seriousguy888.slashspec.listeners.*
 import io.github.seriousguy888.slashspec.packets.FloatingHeadManager
 import io.github.seriousguy888.slashspec.yaml.ConfigReader
 import io.github.seriousguy888.slashspec.yaml.PlayerPreferencesManager
@@ -41,6 +38,7 @@ class SlashSpec : JavaPlugin() {
         pm.registerEvents(PlayerGameModeChangeListener(this), this)
         pm.registerEvents(PlayerMoveListener(this), this)
         pm.registerEvents(PlayerQuitListener(this), this)
+        pm.registerEvents(PlayerTeleportListener(), this)
     }
 
     private fun registerTasks() {
