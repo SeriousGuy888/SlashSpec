@@ -59,7 +59,7 @@ class SpecGhostCommand(private val plugin: SlashSpec) : SubCommand() {
                             if (isNowInGhostMode) "now "
                             else "no longer "
                     )
-                    append("in ghost mode.")
+                    append("in ghost mode. Ghost mode prevents non-spectators from seeing spectators.")
                 },
                 NamedTextColor.AQUA
         ))
