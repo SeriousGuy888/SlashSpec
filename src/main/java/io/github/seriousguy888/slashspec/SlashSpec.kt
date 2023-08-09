@@ -21,6 +21,8 @@ class SlashSpec : JavaPlugin() {
     val tabCompletionUtil = TabCompletionUtil(this)
     val configReader = ConfigReader(this)
 
+    val specCommand = SpecCommand(this)
+
     override fun onEnable() {
         registerCommands()
         registerListeners()
@@ -29,7 +31,7 @@ class SlashSpec : JavaPlugin() {
     }
 
     private fun registerCommands() {
-        getCommand("spec")?.setExecutor(SpecCommand(this))
+        getCommand("spec")?.setExecutor(specCommand)
         logger.info("Registered commands.")
     }
 

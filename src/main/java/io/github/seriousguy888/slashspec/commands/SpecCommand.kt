@@ -70,7 +70,11 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
         return null
     }
 
-    private fun hasPermissionForSubcommand(sender: CommandSender, subcommand: SubCommand): Boolean {
+    fun getSubcommand(name: String): SubCommand? {
+        return subcommands.firstOrNull { it.name == name }
+    }
+
+    fun hasPermissionForSubcommand(sender: CommandSender, subcommand: SubCommand): Boolean {
         if (subcommand.permission == null) {
             return true
         }

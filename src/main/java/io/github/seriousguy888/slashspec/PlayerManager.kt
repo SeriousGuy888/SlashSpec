@@ -77,7 +77,12 @@ class PlayerManager(private val plugin: SlashSpec) {
                 .deserialize(buildString {
                     append("&b")
                     append(if (isPlayerInGhostMode(player)) "Invisible" else "Visible")
-                    append("&f to non-spectators. Toggle with &b/spec ghost&f.")
+                    append("&f to non-spectators.")
+
+                    val subcmd = plugin.specCommand.getSubcommand("ghost") ?: return true
+                    if (plugin.specCommand.hasPermissionForSubcommand(player, subcmd)) {
+                        append(" Toggle with &b/spec ghost&f.")
+                    }
                 }))
 
         return true
