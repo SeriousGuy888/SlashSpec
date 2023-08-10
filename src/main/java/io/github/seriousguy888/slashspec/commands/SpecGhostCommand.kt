@@ -1,8 +1,8 @@
 package io.github.seriousguy888.slashspec.commands
 
 import io.github.seriousguy888.slashspec.SlashSpec
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
+import net.md_5.bungee.api.ChatColor
+import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -33,13 +33,21 @@ class SpecGhostCommand(private val plugin: SlashSpec) : SubCommand() {
         var player = sender as Player
         if (args.size >= 3) {
             if (!sender.hasPermission(adminPerm)) {
-                sender.sendMessage(Component.text("Insufficient permissions.", NamedTextColor.RED))
+                sender.spigot().sendMessage(
+                    *ComponentBuilder("Insufficient permissions.")
+                        .color(ChatColor.RED)
+                        .create()
+                )
                 return
             }
 
             val specifiedPlayer = Bukkit.getPlayer(args[2])
             if (specifiedPlayer == null) {
-                sender.sendMessage(Component.text("Invalid player.", NamedTextColor.RED))
+                sender.spigot().sendMessage(
+                    *ComponentBuilder("Invalid player.")
+                        .color(ChatColor.RED)
+                        .create()
+                )
                 return
             }
 
@@ -50,19 +58,23 @@ class SpecGhostCommand(private val plugin: SlashSpec) : SubCommand() {
 
         val isNowInGhostMode = plugin.playerManager.toggleGhost(player, willBeEnabled)
 
-        sender.sendMessage(Component.text(
+        sender.spigot().sendMessage(
+            *ComponentBuilder(
                 buildString {
                     append(
-                            if (isForcingOther) "Player is "
-                            else "You are ")
+                        if (isForcingOther) "Player is "
+                        else "You are "
+                    )
                     append(
-                            if (isNowInGhostMode) "now "
-                            else "no longer "
+                        if (isNowInGhostMode) "now "
+                        else "no longer "
                     )
                     append("in ghost mode. Ghost mode prevents non-spectators from seeing spectators.")
-                },
-                NamedTextColor.AQUA
-        ))
+                }
+            )
+                .color(ChatColor.AQUA)
+                .create()
+        )
     }
 
     override fun tabComplete(sender: CommandSender, args: Array<out String>): List<String>? {

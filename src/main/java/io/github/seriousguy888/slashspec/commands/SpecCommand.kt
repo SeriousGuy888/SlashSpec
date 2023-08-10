@@ -1,8 +1,8 @@
 package io.github.seriousguy888.slashspec.commands
 
 import io.github.seriousguy888.slashspec.SlashSpec
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
+import net.md_5.bungee.api.ChatColor
+import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.TabExecutor
@@ -30,9 +30,11 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
             subcommands.forEach { subcommand ->
                 if (args[0].equals(subcommand.name, true)) {
                     if (!hasPermissionForSubcommand(sender, subcommand)) {
-                        sender.sendMessage(Component
-                                .text("Insufficient permissions.")
-                                .color(NamedTextColor.RED))
+                        sender.spigot().sendMessage(
+                            *ComponentBuilder("Insufficient permissions.")
+                                .color(ChatColor.RED)
+                                .create()
+                        )
                         return true
                     }
                     subcommand.execute(sender, args)
@@ -40,23 +42,27 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
                 }
             }
 
-            sender.sendMessage(Component
-                    .text("This subcommand does not exist.")
-                    .color(NamedTextColor.RED))
+            sender.spigot().sendMessage(
+                *ComponentBuilder("This subcommand does not exist.")
+                    .color(ChatColor.RED)
+                    .create()
+            )
         }
 
         return true
     }
 
-    override fun onTabComplete(sender: CommandSender,
-                               command: Command,
-                               label: String,
-                               args: Array<out String>): List<String>? {
+    override fun onTabComplete(
+        sender: CommandSender,
+        command: Command,
+        label: String,
+        args: Array<out String>
+    ): List<String>? {
         if (args.size == 1) {
             return plugin.tabCompletionUtil.getCompletions(args[0],
-                    subcommands
-                            .filter { hasPermissionForSubcommand(sender, it) }
-                            .map { it.name })
+                subcommands
+                    .filter { hasPermissionForSubcommand(sender, it) }
+                    .map { it.name })
         } else if (args.size >= 2) {
             subcommands.forEach { subcommand ->
                 if (args[0].equals(subcommand.name, true)) {

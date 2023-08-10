@@ -1,9 +1,9 @@
 package io.github.seriousguy888.slashspec
 
 import io.github.seriousguy888.slashspec.state.StateManager
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
+import net.md_5.bungee.api.ChatColor
+import net.md_5.bungee.api.ChatMessageType
+import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.entity.Entity
@@ -17,8 +17,9 @@ class PlayerManager(private val plugin: SlashSpec) {
 
     fun toggleSpec(player: Player) {
         toggleSpec(
-                player = player,
-                dir = SpecToggleDirection.TOGGLE)
+            player = player,
+            dir = SpecToggleDirection.TOGGLE
+        )
     }
 
     fun toggleSpec(player: Player, dir: SpecToggleDirection): Boolean {
@@ -30,6 +31,7 @@ class PlayerManager(private val plugin: SlashSpec) {
                     putPlayerIntoSpec(player)
                 }
             }
+
             SpecToggleDirection.INTO_SPEC -> putPlayerIntoSpec(player)
             SpecToggleDirection.OUT_OF_SPEC -> putPlayerOutOfSpec(player)
         }
@@ -60,30 +62,38 @@ class PlayerManager(private val plugin: SlashSpec) {
         // https://minecraft.fandom.com/wiki/Lead
         val nearbyEntities = player.getNearbyEntities(10.0, 10.0, 10.0)
         nearbyEntities
-                .forEach {
-                    if (it !is LivingEntity || !it.isLeashed || it.leashHolder != player as Entity)
-                        return@forEach
+            .forEach {
+                if (it !is LivingEntity || !it.isLeashed || it.leashHolder != player as Entity)
+                    return@forEach
 
-                    it.setLeashHolder(null)
-                    if (player.gameMode != GameMode.CREATIVE) {
-                        it.world.dropItemNaturally(it.location, ItemStack(Material.LEAD))
-                    }
+                it.setLeashHolder(null)
+                if (player.gameMode != GameMode.CREATIVE) {
+                    it.world.dropItemNaturally(it.location, ItemStack(Material.LEAD))
                 }
+            }
 
         player.gameMode = GameMode.SPECTATOR
         plugin.floatingHeadManager.displayHead(player)
-        player.sendActionBar(LegacyComponentSerializer
-                .legacyAmpersand()
-                .deserialize(buildString {
-                    append("&b")
-                    append(if (isPlayerInGhostMode(player)) "Invisible" else "Visible")
-                    append("&f to non-spectators.")
 
-                    val subcmd = plugin.specCommand.getSubcommand("ghost") ?: return true
-                    if (plugin.specCommand.hasPermissionForSubcommand(player, subcmd)) {
-                        append(" Toggle with &b/spec ghost&f.")
-                    }
-                }))
+        val actionbarComponents =
+            ComponentBuilder(if (isPlayerInGhostMode(player)) "Invisible" else "Visible")
+                .color(ChatColor.AQUA)
+                .append(" to non-spectators. ")
+                .color(ChatColor.WHITE)
+
+        val subcmd = plugin.specCommand.getSubcommand("ghost") ?: return true
+        val playerCanUseGhost = plugin.specCommand.hasPermissionForSubcommand(player, subcmd)
+        if (playerCanUseGhost) {
+            actionbarComponents
+                .append("Toggle with")
+                .color(ChatColor.WHITE)
+                .append(" /spec ghost")
+                .color(ChatColor.AQUA)
+                .append(".")
+                .color(ChatColor.WHITE)
+        }
+
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, *actionbarComponents.create())
 
         return true
     }
@@ -91,9 +101,11 @@ class PlayerManager(private val plugin: SlashSpec) {
     private fun putPlayerOutOfSpec(player: Player): Boolean {
         val playerState = stateManager.getPlayer(player)
         if (playerState == null) {
-            player.sendMessage(Component.text(
-                    "You did not use /spec to enter spectator mode.",
-                    NamedTextColor.RED))
+            player.spigot().sendMessage(
+                *ComponentBuilder("You did not use /spec to enter spectator mode.")
+                    .color(ChatColor.RED)
+                    .create()
+            )
             return false
         }
 

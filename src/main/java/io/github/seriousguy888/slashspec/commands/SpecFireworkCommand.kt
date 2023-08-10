@@ -1,8 +1,8 @@
 package io.github.seriousguy888.slashspec.commands
 
 import io.github.seriousguy888.slashspec.SlashSpec
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
+import net.md_5.bungee.api.ChatColor
+import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
 import org.bukkit.command.CommandSender
@@ -21,20 +21,20 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
         get() = "slashspec.firework"
 
     data class FwCol(
-            val name: String,
-            val hexInt: Int
+        val name: String,
+        val hexInt: Int
     )
 
     private val fwCols = listOf(
-            FwCol("red", 0xff0000),
-            FwCol("orange", 0xff8800),
-            FwCol("yellow", 0xffff00),
-            FwCol("green", 0x00ff00),
-            FwCol("cyan", 0x00ffff),
-            FwCol("blue", 0x0000ff),
-            FwCol("purple", 0x9370db),
-            FwCol("white", 0xffffff),
-            FwCol("black", 0x000000),
+        FwCol("red", 0xff0000),
+        FwCol("orange", 0xff8800),
+        FwCol("yellow", 0xffff00),
+        FwCol("green", 0x00ff00),
+        FwCol("cyan", 0x00ffff),
+        FwCol("blue", 0x0000ff),
+        FwCol("purple", 0x9370db),
+        FwCol("white", 0xffffff),
+        FwCol("black", 0x000000),
     )
     private val maxFlightDuration = 5
 
@@ -48,9 +48,10 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
         if (args.size >= 2) {
             val fwCol = fwCols.firstOrNull { it.name.equals(args[1], true) }
             if (fwCol == null) {
-                sender.sendMessage(Component
-                        .text("Valid colours: " + fwCols.joinToString(", ") { it.name })
-                        .color(NamedTextColor.RED))
+                sender.spigot().sendMessage(
+                    *ComponentBuilder("Valid colours: " + fwCols.joinToString(", ") { it.name })
+                        .color(ChatColor.RED).create()
+                )
                 return
             }
             colour = Color.fromRGB(fwCol.hexInt)
@@ -76,10 +77,12 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
 
         val firework = sender.world.spawn(sender.eyeLocation, Firework::class.java)
         val meta = firework.fireworkMeta
-        meta.addEffect(FireworkEffect.builder()
+        meta.addEffect(
+            FireworkEffect.builder()
                 .with(FireworkEffect.Type.BALL)
                 .withColor(colour)
-                .build())
+                .build()
+        )
         meta.power = flightDuration - 1
         firework.fireworkMeta = meta
 

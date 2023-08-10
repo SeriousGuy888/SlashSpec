@@ -39,9 +39,16 @@ val shadowJar = tasks.named<ShadowJar>("shadowJar") {
 }
 
 repositories {
-    mavenLocal()
     maven {
-        url = uri("https://repo.papermc.io/repository/maven-public/")
+        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+    }
+
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+    }
+
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/central")
     }
 
     maven {
@@ -55,6 +62,7 @@ repositories {
     maven {
         url = uri("https://repo.maven.apache.org/maven2/")
     }
+    mavenLocal()
     mavenCentral()
 }
 
@@ -64,8 +72,8 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
-    
-    compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
+
+    compileOnly("org.spigotmc:spigot-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
 }
 

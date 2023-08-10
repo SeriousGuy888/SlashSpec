@@ -22,7 +22,7 @@ data class PlayerState(
 
             return PlayerState(
                 plugin = plugin,
-                worldName = location.world.name,
+                worldName = location.world!!.name,
                 xyz = location.toVector(),
                 yaw = location.yaw,
                 pitch = location.pitch,
