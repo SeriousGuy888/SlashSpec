@@ -28,3 +28,7 @@ replay_pid*
 
 # build folder
 target/
+
+# gradle
+.gradle/
+build/
