@@ -6,8 +6,10 @@ import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.io.File
 
-class StateManager(private val plugin: SlashSpec,
-                   private val dataFileLoc: File) {
+class StateManager(
+    private val plugin: SlashSpec,
+    private val dataFileLoc: File
+) {
     val stateMap = HashMap<String /* UUID */, PlayerState>()
     private val dataFile = YamlConfiguration.loadConfiguration(dataFileLoc)
 
@@ -38,13 +40,15 @@ class StateManager(private val plugin: SlashSpec,
             val section = dataFile.getConfigurationSection(uuid) ?: continue
 
             val state = PlayerState(
-                    plugin = plugin,
-                    location = section.getLocation("location") ?: continue,
-                    gameMode = GameMode
-                            .values()
-                            .find { it.name == section.getString("gamemode") }
-                            ?: continue,
-                    isFlying = section.getBoolean("isFlying", false)
+                plugin = plugin,
+                worldName = section.getString("worldName") ?: continue,
+                xyz = section.getVector("xyz") ?: continue,
+                yaw = section.getDouble("yaw", 0.0).toFloat(),
+                pitch = section.getDouble("pitch", 0.0).toFloat(),
+                gameMode = GameMode.entries
+                    .find { it.name == section.getString("gamemode") }
+                    ?: continue,
+                isFlying = section.getBoolean("isFlying", false)
             )
 
             stateMap[uuid] = state
