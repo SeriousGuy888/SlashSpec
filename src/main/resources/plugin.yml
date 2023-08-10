@@ -17,6 +17,24 @@ softdepend:
 commands:
   spec:
     description: Temporarily enter spectator mode to fly around. Run again to go back to survival.
-    permission: slashspec.spec
+    permission: slashspec.use
     aliases:
       - s
+
+# Register permissions here so that LuckPerms can autocomplete properly, since it wasn't detecting some of
+# the permissions correctly for some reason.
+permissions:
+  slashspec.use_hotbar_teleport_menu:
+    default: op
+    description: |
+      Restores normal usage of the teleport menu that replaces the hotbar in spectator mode.
+      Disabled by default for normal players so they cannot teleport to people while using /spec.
+  slashspec.use:
+    default: true
+    description: Allows access to the main /spec command's functionality - toggling spectator mode.
+  slashspec.firework:
+    default: op
+  slashspec.force:
+    default: op
+  slashspec.ghost:
+    default: op
