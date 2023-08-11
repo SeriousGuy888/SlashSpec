@@ -4,10 +4,10 @@ import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketContainer
 import com.comphenix.protocol.wrappers.BukkitConverters
+import com.comphenix.protocol.wrappers.WrappedChatComponent
 import com.comphenix.protocol.wrappers.WrappedDataValue
 import com.comphenix.protocol.wrappers.WrappedDataWatcher
 import io.github.seriousguy888.slashspec.SlashSpec
-import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Color
 import org.bukkit.GameMode
 import org.bukkit.Material
@@ -187,7 +187,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         metadataPacket.integers.write(0, floatingHead.entityId)
 
 
-        val nameOpt = Optional.of(TextComponent(headOwner.displayName))
+        val nameOpt = Optional.of(WrappedChatComponent.fromJson(headOwner.displayName).handle)
 
         val head = ItemStack(Material.PLAYER_HEAD)
         val headMeta = head.itemMeta as SkullMeta
