@@ -18,7 +18,19 @@ data class PlayerState(
 ) {
     companion object {
         fun fromPlayer(player: Player, plugin: SlashSpec): PlayerState {
-            val location = player.location
+            var location = player.location
+
+            // If the player is in a boat or minecart, their y-pos will be lower than the vehicle itself,
+            // causing the player to glitch into the floor when coming back from spec, so use the vehicle's
+            // position instead to prevent this.
+            if(player.isInsideVehicle) {
+                val vehicle = player.vehicle!!
+                if(player.location.y < vehicle.location.y) {
+                    location = vehicle.location
+                    location.yaw = player.location.yaw
+                    location.pitch = player.location.pitch
+                }
+            }
 
             return PlayerState(
                 plugin = plugin,
