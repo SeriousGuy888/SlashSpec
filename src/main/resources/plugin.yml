@@ -35,7 +35,13 @@ permissions:
     description: Allows access to the main /spec command's functionality - toggling spectator mode.
   slashspec.firework:
     default: op
+    children:
+      slashspec.firework.others:
+        default: op
   slashspec.force:
     default: op
   slashspec.ghost:
     default: op
+    children:
+      slashspec.ghost.others:
+        default: op
