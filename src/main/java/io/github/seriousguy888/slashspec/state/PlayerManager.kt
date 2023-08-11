@@ -1,6 +1,6 @@
-package io.github.seriousguy888.slashspec
+package io.github.seriousguy888.slashspec.state
 
-import io.github.seriousguy888.slashspec.state.StateManager
+import io.github.seriousguy888.slashspec.SlashSpec
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.ChatMessageType
 import net.md_5.bungee.api.chat.ComponentBuilder
@@ -13,18 +13,11 @@ import org.bukkit.inventory.ItemStack
 import java.io.File
 
 class PlayerManager(private val plugin: SlashSpec) {
-    val stateManager = StateManager(plugin, File(plugin.dataFolder, "playerdata.yml"))
+    val playerStateManager = PlayerStateManager(plugin, File(plugin.dataFolder, "playerdata.yml"))
 
-    fun toggleSpec(player: Player) {
-        toggleSpec(
-            player = player,
-            dir = SpecToggleDirection.TOGGLE
-        )
-    }
-
-    fun toggleSpec(player: Player, dir: SpecToggleDirection): Boolean {
-        return when (dir) {
-            SpecToggleDirection.TOGGLE -> {
+    fun toggleSpec(player: Player, to: Boolean? = null): Boolean {
+        return when (to) {
+            null -> {
                 if (player.gameMode == GameMode.SPECTATOR) {
                     putPlayerOutOfSpec(player)
                 } else {
@@ -32,8 +25,8 @@ class PlayerManager(private val plugin: SlashSpec) {
                 }
             }
 
-            SpecToggleDirection.INTO_SPEC -> putPlayerIntoSpec(player)
-            SpecToggleDirection.OUT_OF_SPEC -> putPlayerOutOfSpec(player)
+            true -> putPlayerIntoSpec(player)
+            false -> putPlayerOutOfSpec(player)
         }
     }
 
@@ -54,8 +47,8 @@ class PlayerManager(private val plugin: SlashSpec) {
             return false
         }
 
-        stateManager.addPlayer(player)
-        stateManager.savePlayerData()
+        playerStateManager.addPlayer(player)
+        playerStateManager.save()
 
 
         // A lead can stretch a maximum of 10 blocks.
@@ -99,7 +92,7 @@ class PlayerManager(private val plugin: SlashSpec) {
     }
 
     private fun putPlayerOutOfSpec(player: Player): Boolean {
-        val playerState = stateManager.getPlayer(player)
+        val playerState = playerStateManager.getPlayer(player)
         if (playerState == null) {
             player.spigot().sendMessage(
                 *ComponentBuilder("You did not use /spec to enter spectator mode.")
@@ -121,24 +114,15 @@ class PlayerManager(private val plugin: SlashSpec) {
      * It does not change the gamemode of the player, nor does it teleport the player anywhere.
      */
     fun stopTrackingPlayerForSpec(player: Player) {
-        stateManager.removePlayer(player)
+        playerStateManager.removePlayer(player)
         plugin.floatingHeadManager.removeFloatingHead(player)
     }
 
     fun isPlayerInSpec(player: Player): Boolean {
-        return stateManager.hasPlayer(player)
+        return playerStateManager.hasPlayer(player)
     }
 
-    fun isPlayerInGhostMode(player: Player): Boolean {
+    private fun isPlayerInGhostMode(player: Player): Boolean {
         return plugin.playerPrefsManager.get(player).isGhostMode
     }
-}
-
-/**
- * Whether to force the player into spec, out of spec, or to toggle based on the current state.
- */
-enum class SpecToggleDirection {
-    INTO_SPEC,      // Force into spectator mode
-    OUT_OF_SPEC,    // Force out of spectator mode
-    TOGGLE,         // Change gamemode based on whether the player is in spectator mode right now
 }

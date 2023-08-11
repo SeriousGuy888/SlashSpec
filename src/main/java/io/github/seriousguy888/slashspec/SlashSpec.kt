@@ -3,8 +3,9 @@ package io.github.seriousguy888.slashspec
 import io.github.seriousguy888.slashspec.commands.SpecCommand
 import io.github.seriousguy888.slashspec.listeners.*
 import io.github.seriousguy888.slashspec.packets.FloatingHeadManager
+import io.github.seriousguy888.slashspec.state.PlayerManager
+import io.github.seriousguy888.slashspec.state.PlayerPreferencesManager
 import io.github.seriousguy888.slashspec.yaml.ConfigReader
-import io.github.seriousguy888.slashspec.yaml.PlayerPreferencesManager
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
@@ -44,7 +45,7 @@ class SlashSpec : JavaPlugin() {
     private fun registerTasks() {
         object : BukkitRunnable() {
             override fun run() {
-                playerManager.stateManager.stateMap.forEach {
+                playerManager.playerStateManager.map.forEach {
                     val player = Bukkit.getPlayer(UUID.fromString(it.key)) ?: return@forEach
 
                     val isInSpec = playerManager.isPlayerInSpec(player)
@@ -62,17 +63,18 @@ class SlashSpec : JavaPlugin() {
     private fun checkForDependencies() {
         if (!isProtocolLibInstalled()) {
             logger.warning(
-                    "ProtocolLib is not installed on this server!" +
-                            "\nProtocolLib is required for the floating heads feature." +
-                            " You will need to install it from https://www.spigotmc.org/resources/protocollib.1997/" +
-                            " for the floating heads feature to work." +
-                            "\nSlashSpec will display fallback particles in place of the" +
-                            " floating heads feature.")
+                "ProtocolLib is not installed on this server!" +
+                        "\nProtocolLib is required for the floating heads feature." +
+                        " You will need to install it from https://www.spigotmc.org/resources/protocollib.1997/" +
+                        " for the floating heads feature to work." +
+                        "\nSlashSpec will display fallback particles in place of the" +
+                        " floating heads feature."
+            )
         }
     }
 
     override fun onDisable() {
-        playerManager.stateManager.savePlayerData()
+        playerManager.playerStateManager.save()
         playerPrefsManager.save()
 
         Bukkit.getOnlinePlayers().forEach {

@@ -1,43 +1,41 @@
 package io.github.seriousguy888.slashspec.state
 
 import io.github.seriousguy888.slashspec.SlashSpec
+import io.github.seriousguy888.slashspec.yaml.AbstractStateManager
 import org.bukkit.GameMode
-import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.io.File
 
-class StateManager(
+class PlayerStateManager(
     private val plugin: SlashSpec,
     private val dataFileLoc: File
-) {
-    val stateMap = HashMap<String /* UUID */, PlayerState>()
-    private val dataFile = YamlConfiguration.loadConfiguration(dataFileLoc)
+) : AbstractStateManager<String, PlayerState>(plugin, dataFileLoc) {
 
     init {
-        loadPlayerData()
+        load()
     }
 
-    fun savePlayerData() {
+    override fun save() {
         // If an existing player section defines data for a player that is no longer
         // being tracked, delete it from the file as well.
-        dataFile.getKeys(false).forEach { uuid ->
-            if (!stateMap.containsKey(uuid)) {
-                dataFile.set(uuid, null)
+        yamlConfig.getKeys(false).forEach { uuid ->
+            if (!map.containsKey(uuid)) {
+                yamlConfig.set(uuid, null)
             }
         }
 
-        stateMap.forEach {
-            dataFile.set(it.key, it.value.serialise())
+        map.forEach {
+            yamlConfig.set(it.key, it.value.serialise())
         }
 
-        dataFile.save(dataFileLoc)
+        yamlConfig.save(dataFileLoc)
     }
 
-    private fun loadPlayerData() {
-        val keys = dataFile.getKeys(false)
+    override fun load() {
+        val keys = yamlConfig.getKeys(false)
 
         for (uuid in keys) {
-            val section = dataFile.getConfigurationSection(uuid) ?: continue
+            val section = yamlConfig.getConfigurationSection(uuid) ?: continue
 
             val state = PlayerState(
                 plugin = plugin,
@@ -54,23 +52,23 @@ class StateManager(
                 freezeTicks = section.getInt("freezeTicks", 0),
             )
 
-            stateMap[uuid] = state
+            map[uuid] = state
         }
     }
 
     fun addPlayer(player: Player) {
-        stateMap[player.uniqueId.toString()] = PlayerState.fromPlayer(player, plugin)
+        map[player.uniqueId.toString()] = PlayerState.fromPlayer(player, plugin)
     }
 
     fun getPlayer(player: Player): PlayerState? {
-        return stateMap[player.uniqueId.toString()]
+        return map[player.uniqueId.toString()]
     }
 
     fun hasPlayer(player: Player): Boolean {
-        return stateMap.containsKey(player.uniqueId.toString())
+        return map.containsKey(player.uniqueId.toString())
     }
 
     fun removePlayer(player: Player) {
-        stateMap.remove(player.uniqueId.toString())
+        map.remove(player.uniqueId.toString())
     }
 }
