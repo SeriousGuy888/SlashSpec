@@ -5,7 +5,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
  */
 
 group = "io.github.seriousguy888"
-version = "1.0"
+version = "1.0.0"
 description = "SlashSpec"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
