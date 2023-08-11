@@ -17,7 +17,7 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
     override val name: String
         get() = "firework"
     override val syntax: String
-        get() = "/spec firework [<colour>] [<flight duration>/instant]"
+        get() = "/spec firework [<colour>] [<flight duration>/instant] [<player>]"
     override val permission: String
         get() = "slashspec.firework"
 
