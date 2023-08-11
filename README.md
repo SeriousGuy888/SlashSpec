@@ -55,6 +55,3 @@ However, as players in spectator mode might be able to use it to teleport to who
 ProtocolLib is an optional dependency for this plugin, but **_it is required for the floating heads feature to work_**.
 
 If you don't already have it installed, download ProtocolLib from https://www.spigotmc.org/resources/protocollib.1997/ and add the plugin to the server along with SlashSpec.
-
-# Full Changelog
-https://github.com/SeriousGuy888/SlashSpec/commits/v1.0.0
