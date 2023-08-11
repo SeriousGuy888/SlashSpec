@@ -4,6 +4,7 @@ import io.github.seriousguy888.slashspec.SlashSpec
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
+import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
 import org.bukkit.util.Vector
 
@@ -48,6 +49,24 @@ data class PlayerState(
                 remainingAir = player.remainingAir,
                 fireTicks = player.fireTicks,
                 freezeTicks = player.freezeTicks,
+            )
+        }
+
+        fun fromConfigSection(section: ConfigurationSection, plugin: SlashSpec): PlayerState? {
+            return PlayerState(
+                plugin = plugin,
+                worldName = section.getString("worldName") ?: return null,
+                xyz = section.getVector("xyz") ?: return null,
+                yaw = section.getDouble("yaw", 0.0).toFloat(),
+                pitch = section.getDouble("pitch", 0.0).toFloat(),
+                gameMode = GameMode.entries
+                    .find { it.name == section.getString("gamemode", "SURVIVAL") }
+                    ?: GameMode.SURVIVAL,
+                isFlying = section.getBoolean("isFlying", false),
+                fallDistance = section.getDouble("fallDistance", 0.0).toFloat(),
+                remainingAir = section.getInt("remainingAir", 0),
+                fireTicks = section.getInt("fireTicks", 0),
+                freezeTicks = section.getInt("freezeTicks", 0),
             )
         }
     }

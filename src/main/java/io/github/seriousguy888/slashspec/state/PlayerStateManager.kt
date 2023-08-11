@@ -2,7 +2,6 @@ package io.github.seriousguy888.slashspec.state
 
 import io.github.seriousguy888.slashspec.SlashSpec
 import io.github.seriousguy888.slashspec.yaml.AbstractStateManager
-import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import java.io.File
 
@@ -36,22 +35,7 @@ class PlayerStateManager(
 
         for (uuid in keys) {
             val section = yamlConfig.getConfigurationSection(uuid) ?: continue
-
-            val state = PlayerState(
-                plugin = plugin,
-                worldName = section.getString("worldName") ?: continue,
-                xyz = section.getVector("xyz") ?: continue,
-                yaw = section.getDouble("yaw", 0.0).toFloat(),
-                pitch = section.getDouble("pitch", 0.0).toFloat(),
-                gameMode = GameMode.entries
-                    .find { it.name == section.getString("gamemode", "SURVIVAL") }
-                    ?: GameMode.SURVIVAL,
-                isFlying = section.getBoolean("isFlying", false),
-                fallDistance = section.getDouble("fallDistance", 0.0).toFloat(),
-                remainingAir = section.getInt("remainingAir", 0),
-                fireTicks = section.getInt("fireTicks", 0),
-                freezeTicks = section.getInt("freezeTicks", 0),
-            )
+            val state = PlayerState.fromConfigSection(section, plugin) ?: continue
 
             map[uuid] = state
         }
