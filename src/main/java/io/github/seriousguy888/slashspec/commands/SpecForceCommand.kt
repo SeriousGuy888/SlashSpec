@@ -1,7 +1,6 @@
 package io.github.seriousguy888.slashspec.commands
 
 import io.github.seriousguy888.slashspec.SlashSpec
-import io.github.seriousguy888.slashspec.SpecToggleDirection
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.ComponentBuilder
 import org.bukkit.Bukkit
@@ -33,14 +32,14 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
             return
         }
 
-        var dir = SpecToggleDirection.TOGGLE
+        var willBeInSpec: Boolean? = null
 
         // if the [in/out] arg is set
         if (args.size >= 3) {
-            dir = if (args[2].equals("in", true))
-                SpecToggleDirection.INTO_SPEC
+            willBeInSpec = if (args[2].equals("in", true))
+                true
             else if (args[2].equals("out", true))
-                SpecToggleDirection.OUT_OF_SPEC
+                false
             else {
                 sender.sendMessage(syntax)
                 return
@@ -48,7 +47,7 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
         }
 
         val isPlayerInSpec = plugin.playerManager.isPlayerInSpec(targetPlayer)
-        if (!isPlayerInSpec && dir == SpecToggleDirection.OUT_OF_SPEC) {
+        if (!isPlayerInSpec && willBeInSpec == false) {
             sender.spigot().sendMessage(
                 *ComponentBuilder("This player is not using /spec's spectator mode.")
                     .color(ChatColor.RED)
@@ -56,7 +55,7 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
             )
             return
         }
-        if ((targetPlayer.gameMode == GameMode.SPECTATOR && dir == SpecToggleDirection.INTO_SPEC)) {
+        if (targetPlayer.gameMode == GameMode.SPECTATOR && willBeInSpec == true) {
             sender.spigot().sendMessage(
                 *ComponentBuilder("This player is already in spectator mode.")
                     .color(ChatColor.RED)
@@ -75,7 +74,7 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
 
         val success = plugin.playerManager.toggleSpec(
             player = targetPlayer,
-            dir = dir
+            to = willBeInSpec
         )
 
         if (success) {
@@ -83,10 +82,10 @@ class SpecForceCommand(private val plugin: SlashSpec) : SubCommand() {
                 *ComponentBuilder(buildString {
                     append("Forced ")
                     append(targetPlayer.name)
-                    when (dir) {
-                        SpecToggleDirection.INTO_SPEC -> append(" into spec.")
-                        SpecToggleDirection.OUT_OF_SPEC -> append(" out of spec.")
-                        SpecToggleDirection.TOGGLE -> append(" to toggle spec.")
+                    when (willBeInSpec) {
+                        true -> append(" into spec.")
+                        false -> append(" out of spec.")
+                        null -> append(" to toggle spec.")
                     }
                 })
                     .color(ChatColor.AQUA)
