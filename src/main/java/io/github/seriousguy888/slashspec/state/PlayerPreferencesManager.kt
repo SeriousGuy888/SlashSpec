@@ -5,8 +5,6 @@ import io.github.seriousguy888.slashspec.yaml.AbstractStateManager
 import org.bukkit.entity.Player
 import java.io.File
 
-// TODO: merge this with StateManager somehow
-
 class PlayerPreferencesManager(
     private val plugin: SlashSpec,
     private val prefsFileLoc: File

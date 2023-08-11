@@ -5,6 +5,7 @@ import io.github.seriousguy888.slashspec.listeners.*
 import io.github.seriousguy888.slashspec.packets.FloatingHeadManager
 import io.github.seriousguy888.slashspec.state.PlayerManager
 import io.github.seriousguy888.slashspec.state.PlayerPreferencesManager
+import io.github.seriousguy888.slashspec.state.PlayerStateManager
 import io.github.seriousguy888.slashspec.yaml.ConfigReader
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
@@ -14,6 +15,7 @@ import java.util.*
 
 class SlashSpec : JavaPlugin() {
     val playerPrefsManager = PlayerPreferencesManager(this, File(dataFolder, "playerprefs.yml"))
+    val playerStateManager = PlayerStateManager(this, File(dataFolder, "playerdata.yml"))
     val playerManager = PlayerManager(this)
     val floatingHeadManager = FloatingHeadManager(this)
     val tabCompletionUtil = TabCompletionUtil(this)
@@ -43,9 +45,10 @@ class SlashSpec : JavaPlugin() {
     }
 
     private fun registerTasks() {
+        // Every second, update the floating head location for all players that need it
         object : BukkitRunnable() {
             override fun run() {
-                playerManager.playerStateManager.map.forEach {
+                playerStateManager.map.forEach {
                     val player = Bukkit.getPlayer(UUID.fromString(it.key)) ?: return@forEach
 
                     val isInSpec = playerManager.isPlayerInSpec(player)
@@ -56,6 +59,13 @@ class SlashSpec : JavaPlugin() {
                 }
             }
         }.runTaskTimer(this, 0, 20)
+
+        // Every five minutes, save all the yaml files
+        object : BukkitRunnable() {
+            override fun run() {
+                saveYamls()
+            }
+        }.runTaskTimer(this, 0, 20 * 60 * 5)
 
         logger.info("Registered periodic tasks.")
     }
@@ -74,12 +84,16 @@ class SlashSpec : JavaPlugin() {
     }
 
     override fun onDisable() {
-        playerManager.playerStateManager.save()
-        playerPrefsManager.save()
+        saveYamls()
 
         Bukkit.getOnlinePlayers().forEach {
             floatingHeadManager.removeFloatingHead(it)
         }
+    }
+
+    private fun saveYamls() {
+        playerStateManager.save()
+        playerPrefsManager.save()
     }
 
     fun isProtocolLibInstalled(): Boolean {

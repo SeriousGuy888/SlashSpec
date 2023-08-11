@@ -10,11 +10,8 @@ import org.bukkit.entity.Entity
 import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import java.io.File
 
 class PlayerManager(private val plugin: SlashSpec) {
-    val playerStateManager = PlayerStateManager(plugin, File(plugin.dataFolder, "playerdata.yml"))
-
     fun toggleSpec(player: Player, to: Boolean? = null): Boolean {
         return when (to) {
             null -> {
@@ -47,8 +44,7 @@ class PlayerManager(private val plugin: SlashSpec) {
             return false
         }
 
-        playerStateManager.addPlayer(player)
-        playerStateManager.save()
+        plugin.playerStateManager.addPlayer(player)
 
 
         // A lead can stretch a maximum of 10 blocks.
@@ -92,7 +88,7 @@ class PlayerManager(private val plugin: SlashSpec) {
     }
 
     private fun putPlayerOutOfSpec(player: Player): Boolean {
-        val playerState = playerStateManager.getPlayer(player)
+        val playerState = plugin.playerStateManager.getPlayer(player)
         if (playerState == null) {
             player.spigot().sendMessage(
                 *ComponentBuilder("You did not use /spec to enter spectator mode.")
@@ -114,12 +110,12 @@ class PlayerManager(private val plugin: SlashSpec) {
      * It does not change the gamemode of the player, nor does it teleport the player anywhere.
      */
     fun stopTrackingPlayerForSpec(player: Player) {
-        playerStateManager.removePlayer(player)
+        plugin.playerStateManager.removePlayer(player)
         plugin.floatingHeadManager.removeFloatingHead(player)
     }
 
     fun isPlayerInSpec(player: Player): Boolean {
-        return playerStateManager.hasPlayer(player)
+        return plugin.playerStateManager.hasPlayer(player)
     }
 
     private fun isPlayerInGhostMode(player: Player): Boolean {
