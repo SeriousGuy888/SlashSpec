@@ -15,6 +15,9 @@ data class PlayerState(
     private val pitch: Float,       // spec after a server restart. This fixes that bug.
     private val gameMode: GameMode,
     private val isFlying: Boolean,
+    private val remainingAir: Int,
+    private val fireTicks: Int,
+    private val freezeTicks: Int,
 ) {
     companion object {
         fun fromPlayer(player: Player, plugin: SlashSpec): PlayerState {
@@ -39,7 +42,10 @@ data class PlayerState(
                 yaw = location.yaw,
                 pitch = location.pitch,
                 gameMode = player.gameMode,
-                isFlying = player.isFlying
+                isFlying = player.isFlying,
+                remainingAir = player.remainingAir,
+                fireTicks = player.fireTicks,
+                freezeTicks = player.freezeTicks,
             )
         }
     }
@@ -53,19 +59,25 @@ data class PlayerState(
             player.teleport(location)
             player.gameMode = gameMode
             player.isFlying = isFlying
+            player.remainingAir = remainingAir
+            player.fireTicks = fireTicks
+            player.freezeTicks = freezeTicks
         })
     }
 
     fun serialise(): HashMap<String, Any> {
-        val serialisation = HashMap<String, Any>()
+        val ser = HashMap<String, Any>()
 
-        serialisation["worldName"] = worldName
-        serialisation["xyz"] = xyz
-        serialisation["yaw"] = yaw
-        serialisation["pitch"] = pitch
-        serialisation["gamemode"] = gameMode.name
-        serialisation["isFlying"] = isFlying
+        ser["worldName"] = worldName
+        ser["xyz"] = xyz
+        ser["yaw"] = yaw
+        ser["pitch"] = pitch
+        ser["gamemode"] = gameMode.name
+        ser["isFlying"] = isFlying
+        ser["remainingAir"] = remainingAir
+        ser["fireTicks"] = fireTicks
+        ser["freezeTicks"] = freezeTicks
 
-        return serialisation
+        return ser
     }
 }

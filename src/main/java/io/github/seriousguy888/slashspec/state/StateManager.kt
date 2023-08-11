@@ -46,9 +46,12 @@ class StateManager(
                 yaw = section.getDouble("yaw", 0.0).toFloat(),
                 pitch = section.getDouble("pitch", 0.0).toFloat(),
                 gameMode = GameMode.entries
-                    .find { it.name == section.getString("gamemode") }
-                    ?: continue,
-                isFlying = section.getBoolean("isFlying", false)
+                    .find { it.name == section.getString("gamemode", "SURVIVAL") }
+                    ?: GameMode.SURVIVAL,
+                isFlying = section.getBoolean("isFlying", false),
+                remainingAir = section.getInt("remainingAir", 0),
+                fireTicks = section.getInt("fireTicks", 0),
+                freezeTicks = section.getInt("freezeTicks", 0),
             )
 
             stateMap[uuid] = state
