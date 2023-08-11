@@ -47,6 +47,7 @@ class PlayerStateManager(
                     .find { it.name == section.getString("gamemode", "SURVIVAL") }
                     ?: GameMode.SURVIVAL,
                 isFlying = section.getBoolean("isFlying", false),
+                fallDistance = section.getDouble("fallDistance", 0.0).toFloat(),
                 remainingAir = section.getInt("remainingAir", 0),
                 fireTicks = section.getInt("fireTicks", 0),
                 freezeTicks = section.getInt("freezeTicks", 0),

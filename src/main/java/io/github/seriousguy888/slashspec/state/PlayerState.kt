@@ -15,6 +15,7 @@ data class PlayerState(
     private val pitch: Float,       // spec after a server restart. This fixes that bug.
     private val gameMode: GameMode,
     private val isFlying: Boolean,
+    private val fallDistance: Float,
     private val remainingAir: Int,
     private val fireTicks: Int,
     private val freezeTicks: Int,
@@ -26,9 +27,9 @@ data class PlayerState(
             // If the player is in a boat or minecart, their y-pos will be lower than the vehicle itself,
             // causing the player to glitch into the floor when coming back from spec, so use the vehicle's
             // position instead to prevent this.
-            if(player.isInsideVehicle) {
+            if (player.isInsideVehicle) {
                 val vehicle = player.vehicle!!
-                if(player.location.y < vehicle.location.y) {
+                if (player.location.y < vehicle.location.y) {
                     location = vehicle.location
                     location.yaw = player.location.yaw
                     location.pitch = player.location.pitch
@@ -43,6 +44,7 @@ data class PlayerState(
                 pitch = location.pitch,
                 gameMode = player.gameMode,
                 isFlying = player.isFlying,
+                fallDistance = player.fallDistance,
                 remainingAir = player.remainingAir,
                 fireTicks = player.fireTicks,
                 freezeTicks = player.freezeTicks,
@@ -59,6 +61,7 @@ data class PlayerState(
             player.teleport(location)
             player.gameMode = gameMode
             player.isFlying = isFlying
+            player.fallDistance = fallDistance
             player.remainingAir = remainingAir
             player.fireTicks = fireTicks
             player.freezeTicks = freezeTicks
@@ -74,6 +77,7 @@ data class PlayerState(
         ser["pitch"] = pitch
         ser["gamemode"] = gameMode.name
         ser["isFlying"] = isFlying
+        ser["fallDistance"] = fallDistance
         ser["remainingAir"] = remainingAir
         ser["fireTicks"] = fireTicks
         ser["freezeTicks"] = freezeTicks
