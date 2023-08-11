@@ -3,6 +3,7 @@ package io.github.seriousguy888.slashspec.commands
 import io.github.seriousguy888.slashspec.SlashSpec
 import net.md_5.bungee.api.ChatColor
 import net.md_5.bungee.api.chat.ComponentBuilder
+import org.bukkit.Bukkit
 import org.bukkit.Color
 import org.bukkit.FireworkEffect
 import org.bukkit.command.CommandSender
@@ -19,6 +20,8 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
         get() = "/spec firework [<colour>] [<flight duration>/instant]"
     override val permission: String
         get() = "slashspec.firework"
+
+    private val adminPerm = "slashspec.firework.others"
 
     data class FwCol(
         val name: String,
@@ -39,11 +42,6 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
     private val maxFlightDuration = 5
 
     override fun execute(sender: CommandSender, args: Array<out String>) {
-        if (sender !is Player) {
-            sender.sendMessage("Only players can summon fireworks.")
-            return
-        }
-
         var colour = Color.RED
         if (args.size >= 2) {
             val fwCol = fwCols.firstOrNull { it.name.equals(args[1], true) }
@@ -75,7 +73,34 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
             }
         }
 
-        val firework = sender.world.spawn(sender.eyeLocation, Firework::class.java)
+        var spawnAtPlayer: Player? = null
+
+        if (args.size >= 4) {
+            if (!sender.hasPermission(adminPerm)) {
+                sender.spigot().sendMessage(
+                    *ComponentBuilder("Insufficient permissions.")
+                        .color(ChatColor.RED).create()
+                )
+                return
+            }
+
+            spawnAtPlayer = Bukkit.getPlayer(args[3])
+            if (spawnAtPlayer == null) {
+                sender.spigot().sendMessage(
+                    *ComponentBuilder("Invalid player.")
+                        .color(ChatColor.RED).create()
+                )
+                return
+            }
+        }
+
+        if (spawnAtPlayer !is Player) {
+            sender.sendMessage("The console must specify a player to spawn the firework at.")
+            sender.sendMessage(syntax)
+            return
+        }
+
+        val firework = spawnAtPlayer.world.spawn(spawnAtPlayer.eyeLocation, Firework::class.java)
         val meta = firework.fireworkMeta
         meta.addEffect(
             FireworkEffect.builder()
@@ -104,6 +129,10 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
             val flightDurations = (1..maxFlightDuration).map { it.toString() }.toMutableList()
             flightDurations.add("instant")
             return plugin.tabCompletionUtil.getCompletions(args[2], flightDurations)
+        }
+
+        if (args.size == 4 && sender.hasPermission(adminPerm)) {
+            return plugin.tabCompletionUtil.getPlayerNames(args[3])
         }
 
         return listOf()
