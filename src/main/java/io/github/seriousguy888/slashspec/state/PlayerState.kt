@@ -60,8 +60,6 @@ data class PlayerState(
             val map = gson.fromJson(json, HashMap::class.java)
                 .toMutableMap()
 
-            plugin.logger.info(map["remainingAir"]!!::class.java.name)
-
             return PlayerState(
                 plugin = plugin,
                 worldName = map["worldName"].toString(),
