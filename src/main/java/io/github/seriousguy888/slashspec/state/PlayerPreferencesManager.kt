@@ -1,14 +1,16 @@
 package io.github.seriousguy888.slashspec.state
 
 import io.github.seriousguy888.slashspec.SlashSpec
-import io.github.seriousguy888.slashspec.yaml.AbstractStateManager
+import org.bukkit.configuration.file.YamlConfiguration
 import org.bukkit.entity.Player
 import java.io.File
 
 class PlayerPreferencesManager(
     private val plugin: SlashSpec,
     private val prefsFileLoc: File
-) : AbstractStateManager<String, PlayerPrefs>(plugin, prefsFileLoc) {
+) {
+    private val yamlConfig = YamlConfiguration.loadConfiguration(prefsFileLoc)
+    private val map = HashMap<String, PlayerPrefs>()
 
     init {
         load()
@@ -22,7 +24,7 @@ class PlayerPreferencesManager(
         map[player.uniqueId.toString()] = newPrefs
     }
 
-    override fun save() {
+    fun save() {
         map.forEach {
             val serialisation = HashMap<String, Any>()
             serialisation["isGhostMode"] = it.value.isGhostMode
@@ -32,7 +34,7 @@ class PlayerPreferencesManager(
         yamlConfig.save(prefsFileLoc)
     }
 
-    override fun load() {
+    fun load() {
         val keys = yamlConfig.getKeys(false)
 
         keys.forEach { uuid ->
