@@ -1,59 +1,45 @@
 package io.github.seriousguy888.slashspec.state
 
 import io.github.seriousguy888.slashspec.SlashSpec
-import io.github.seriousguy888.slashspec.yaml.AbstractStateManager
+import io.github.seriousguy888.slashspec.persistentdata.PlayerStateDataType
+import org.bukkit.NamespacedKey
 import org.bukkit.entity.Player
-import java.io.File
 
-class PlayerStateManager(
-    private val plugin: SlashSpec,
-    private val dataFileLoc: File
-) : AbstractStateManager<String, PlayerState>(plugin, dataFileLoc) {
+class PlayerStateManager(private val plugin: SlashSpec) {
+    val stateCache = HashMap<Player, PlayerState>()
 
-    init {
-        load()
-    }
-
-    override fun save() {
-        // If an existing player section defines data for a player that is no longer
-        // being tracked, delete it from the file as well.
-        yamlConfig.getKeys(false).forEach { uuid ->
-            if (!map.containsKey(uuid)) {
-                yamlConfig.set(uuid, null)
-            }
-        }
-
-        map.forEach {
-            yamlConfig.set(it.key, it.value.serialise())
-        }
-
-        yamlConfig.save(dataFileLoc)
-    }
-
-    override fun load() {
-        val keys = yamlConfig.getKeys(false)
-
-        for (uuid in keys) {
-            val section = yamlConfig.getConfigurationSection(uuid) ?: continue
-            val state = PlayerState.fromConfigSection(section, plugin) ?: continue
-
-            map[uuid] = state
-        }
-    }
+    private val namespacedKey = NamespacedKey(plugin, "spec_state")
+    private val dataType = PlayerStateDataType(plugin)
 
     fun addPlayer(player: Player) {
-        map[player.uniqueId.toString()] = PlayerState.fromPlayer(player, plugin)
+        val container = player.persistentDataContainer
+        val state = PlayerState.fromPlayer(player, plugin)
+        container.set(namespacedKey, dataType, state)
+
+        stateCache[player] = state
     }
 
     fun getPlayer(player: Player): PlayerState? {
-        return map[player.uniqueId.toString()]
+        if (stateCache.containsKey(player)) {
+            return stateCache[player]
+        }
+
+        val container = player.persistentDataContainer
+        val hasStateStored = container.has(namespacedKey, dataType)
+
+        if (hasStateStored) {
+            return container.get(namespacedKey, dataType)
+        }
+
+        return null
     }
 
     fun hasPlayer(player: Player): Boolean {
-        return map.containsKey(player.uniqueId.toString())
+        return stateCache.containsKey(player) || player.persistentDataContainer.has(namespacedKey, dataType)
     }
 
     fun removePlayer(player: Player) {
-        map.remove(player.uniqueId.toString())
+        stateCache.remove(player)
+        player.persistentDataContainer.remove(namespacedKey)
     }
 }

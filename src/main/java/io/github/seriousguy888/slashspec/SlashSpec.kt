@@ -11,11 +11,10 @@ import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
 import java.io.File
-import java.util.*
 
 class SlashSpec : JavaPlugin() {
     val playerPrefsManager = PlayerPreferencesManager(this, File(dataFolder, "playerprefs.yml"))
-    val playerStateManager = PlayerStateManager(this, File(dataFolder, "playerdata.yml"))
+    val playerStateManager = PlayerStateManager(this)
     val playerManager = PlayerManager(this)
     val floatingHeadManager = FloatingHeadManager(this)
     val tabCompletionUtil = TabCompletionUtil(this)
@@ -48,8 +47,10 @@ class SlashSpec : JavaPlugin() {
         // Every second, update the floating head location for all players that need it
         object : BukkitRunnable() {
             override fun run() {
-                playerStateManager.map.forEach {
-                    val player = Bukkit.getPlayer(UUID.fromString(it.key)) ?: return@forEach
+                playerStateManager.stateCache.forEach {
+                    val player = it.key
+                    if(!player.isOnline)
+                        return@forEach
 
                     val isInSpec = playerManager.isPlayerInSpec(player)
                     if (!isInSpec)
@@ -92,7 +93,7 @@ class SlashSpec : JavaPlugin() {
     }
 
     private fun saveYamls() {
-        playerStateManager.save()
+//        playerStateManager.save()
         playerPrefsManager.save()
     }
 

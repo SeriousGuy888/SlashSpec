@@ -46,6 +46,10 @@ class PlayerManager(private val plugin: SlashSpec) {
 
         plugin.playerStateManager.addPlayer(player)
 
+//        val dataContainer = player.persistentDataContainer
+
+
+
 
         // A lead can stretch a maximum of 10 blocks.
         // https://minecraft.fandom.com/wiki/Lead

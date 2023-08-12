@@ -1,19 +1,20 @@
 package io.github.seriousguy888.slashspec.state
 
+import com.google.gson.Gson
 import io.github.seriousguy888.slashspec.SlashSpec
 import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
-import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.entity.Player
-import org.bukkit.util.Vector
 
 data class PlayerState(
     private val plugin: SlashSpec,
-    private val worldName: String,  // Storing the Location object broken up like this because the World of the Location
-    private val xyz: Vector,        // might not be loaded when the plugin loads the data, causing an exception in the
-    private val yaw: Float,         // console & a failure to load in a player's state, causing players to be stuck in
-    private val pitch: Float,       // spec after a server restart. This fixes that bug.
+    private val worldName: String,
+    private val x: Double,
+    private val y: Double,
+    private val z: Double,
+    private val yaw: Float,
+    private val pitch: Float,
     private val gameMode: GameMode,
     private val isFlying: Boolean,
     private val fallDistance: Float,
@@ -40,7 +41,9 @@ data class PlayerState(
             return PlayerState(
                 plugin = plugin,
                 worldName = location.world!!.name,
-                xyz = location.toVector(),
+                x = location.x,
+                y = location.y,
+                z = location.z,
                 yaw = location.yaw,
                 pitch = location.pitch,
                 gameMode = player.gameMode,
@@ -52,28 +55,36 @@ data class PlayerState(
             )
         }
 
-        fun fromConfigSection(section: ConfigurationSection, plugin: SlashSpec): PlayerState? {
+        fun fromJson(json: String, plugin: SlashSpec): PlayerState {
+            val gson = Gson()
+            val map = gson.fromJson(json, HashMap::class.java)
+                .toMutableMap()
+
+            plugin.logger.info(map["remainingAir"]!!::class.java.name)
+
             return PlayerState(
                 plugin = plugin,
-                worldName = section.getString("worldName") ?: return null,
-                xyz = section.getVector("xyz") ?: return null,
-                yaw = section.getDouble("yaw", 0.0).toFloat(),
-                pitch = section.getDouble("pitch", 0.0).toFloat(),
+                worldName = map["worldName"].toString(),
+                x = map["x"].toString().toDoubleOrNull() ?: 0.0,
+                y = map["y"].toString().toDoubleOrNull() ?: 0.0,
+                z = map["z"].toString().toDoubleOrNull() ?: 0.0,
+                yaw = map["yaw"].toString().toFloatOrNull() ?: 0f,
+                pitch = map["pitch"].toString().toFloatOrNull() ?: 0f,
                 gameMode = GameMode.entries
-                    .find { it.name == section.getString("gamemode", "SURVIVAL") }
+                    .find { it.name == map["gameMode"] }
                     ?: GameMode.SURVIVAL,
-                isFlying = section.getBoolean("isFlying", false),
-                fallDistance = section.getDouble("fallDistance", 0.0).toFloat(),
-                remainingAir = section.getInt("remainingAir", 0),
-                fireTicks = section.getInt("fireTicks", 0),
-                freezeTicks = section.getInt("freezeTicks", 0),
+                isFlying = map["isFlying"].toString().toBooleanStrictOrNull() ?: false,
+                fallDistance = map["fallDistance"].toString().toFloatOrNull() ?: 0f,
+                remainingAir = map["remainingAir"].toString().toDoubleOrNull()?.toInt() ?: 0,
+                fireTicks = map["fireTicks"].toString().toDoubleOrNull()?.toInt() ?: 0,
+                freezeTicks = map["freezeTicks"].toString().toDoubleOrNull()?.toInt() ?: 0,
             )
         }
     }
 
     fun restore(player: Player) {
         val world = Bukkit.getWorld(worldName) ?: throw IllegalArgumentException("World of location is not loaded.")
-        val location = Location(world, xyz.x, xyz.y, xyz.z, yaw, pitch)
+        val location = Location(world, x, y, z, yaw, pitch)
 
         // runTask one tick later to prevent the player moving too fast warning in the console
         Bukkit.getScheduler().runTask(plugin, Runnable {
@@ -87,11 +98,13 @@ data class PlayerState(
         })
     }
 
-    fun serialise(): HashMap<String, Any> {
+    fun toJson(): String {
         val ser = HashMap<String, Any>()
 
         ser["worldName"] = worldName
-        ser["xyz"] = xyz
+        ser["x"] = x
+        ser["y"] = y
+        ser["z"] = z
         ser["yaw"] = yaw
         ser["pitch"] = pitch
         ser["gamemode"] = gameMode.name
@@ -101,6 +114,6 @@ data class PlayerState(
         ser["fireTicks"] = fireTicks
         ser["freezeTicks"] = freezeTicks
 
-        return ser
+        return Gson().toJson(ser)
     }
 }
