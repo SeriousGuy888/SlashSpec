@@ -64,7 +64,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         val nearbyPlayers = player
             .getNearbyEntities(visibilityRange, visibilityRange, visibilityRange)
             .filterIsInstance<Player>()
-            .filter { it.gameMode != GameMode.SPECTATOR }
+            .filter { it != player && it.gameMode != GameMode.SPECTATOR }
 
 
         // If ProtocolLib is not installed, don't bother with the floating head stuff, and
@@ -192,8 +192,8 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
 
 
         val nameOpt = Optional.of(WrappedChatComponent.fromJson(headOwner.displayName).handle)
-            // If using PaperMC (ie: the teamDisplayName method is available), use that for the floating head
-            // name tag.
+        // If using PaperMC (ie: the teamDisplayName method is available), use that for the floating head
+        // name tag.
 //            Optional.of(AdventureComponentConverter.fromComponent(headOwner.teamDisplayName()).handle)
 //        } catch (e: NoSuchMethodError) {
 //            // If not, (ie: probably using Spigot), use the regular old displayName method.
