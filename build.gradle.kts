@@ -14,6 +14,15 @@ application {
     mainClass.set(name)
 }
 
+//buildscript {
+//    repositories {
+//        mavenCentral()
+//    }
+//    dependencies {
+//        classpath("com.guardsquare:proguard-gradle:7.2.0-beta2")
+//    }
+//}
+
 plugins {
     `java-library`
     `maven-publish`
@@ -96,6 +105,47 @@ tasks.withType<JavaCompile> {
 tasks.withType<Javadoc> {
     options.encoding = "UTF-8"
 }
+
+//tasks.register<proguard.gradle.ProGuardTask>("proguard") {
+//    verbose()
+//
+//    // Alternatively put your config in a separate file
+//     configuration("proguard-rules.pro")
+//
+//
+////    libraryjars (configurations.runtimeOnly)
+////    libraryjars (sourceSets.main)
+//
+//    // Use the jar task output as a input jar. This will automatically add the necessary task dependency.
+////    injars(tasks.named("jar"))
+////
+////    outjars("build/proguard-obfuscated.jar")
+////
+////    val javaHome = System.getProperty("java.home")
+////    // Automatically handle the Java version of this build.
+////    if (System.getProperty("java.version").startsWith("1.")) {
+////        // Before Java 9, the runtime classes were packaged in a single jar file.
+////        libraryjars("$javaHome/lib/rt.jar")
+////    } else {
+////        // As of Java 9, the runtime classes are packaged in modular jmod files.
+////        libraryjars(
+////            // filters must be specified first, as a map
+////            mapOf("jarfilter" to "!**.jar",
+////                "filter"    to "!module-info.class"),
+////            "$javaHome/jmods/java.base.jmod"
+////        )
+////    }
+////
+////    allowaccessmodification()
+////
+////    repackageclasses("")
+////
+////    printmapping("build/proguard-mapping.txt")
+////
+////    keep("io.github.seriousguy888.slashspec.SlashSpec")
+//}
+
+//tasks.build.get().finalizedBy(tasks.getByName("proguard"))
 
 kotlin {
     jvmToolchain(17)
