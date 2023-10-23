@@ -48,9 +48,10 @@ class SlashSpec : JavaPlugin() {
         object : BukkitRunnable() {
             override fun run() {
                 playerStateManager.stateCache.forEach {
-                    val player = it.key
-                    if(!player.isOnline)
-                        return@forEach
+                    val uuid = it.key
+
+                    // Try to get the player. If not online, return.
+                    val player = Bukkit.getPlayer(uuid) ?: return@forEach
 
                     val isInSpec = playerManager.isPlayerInSpec(player)
                     if (!isInSpec)

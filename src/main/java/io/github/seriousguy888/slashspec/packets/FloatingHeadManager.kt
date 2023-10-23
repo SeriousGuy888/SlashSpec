@@ -21,7 +21,7 @@ import java.util.*
 
 
 class FloatingHeadManager(private val plugin: SlashSpec) {
-    private val floatingHeadMap = HashMap<Player, FloatingHead>()
+    val floatingHeadMap = HashMap<UUID, FloatingHead>()
     private val visibilityRange = 32.0
 
     private val isProtocolLibInstalled = plugin.isProtocolLibInstalled()
@@ -44,7 +44,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         if (isInGhostMode)
             return
 
-        val alreadyExists = floatingHeadMap.containsKey(player)
+        val alreadyExists = floatingHeadMap.containsKey(player.uniqueId)
 
         // If player is spectating from another entity's perspective
         if (player.spectatorTarget != null) {
@@ -88,7 +88,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
 
         val floatingHead =
             if (alreadyExists)
-                floatingHeadMap[player]!!
+                floatingHeadMap[player.uniqueId]!!
             else
                 FloatingHead(
                     entityId = (Math.random() * Integer.MAX_VALUE).toInt(),
@@ -128,17 +128,17 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
             }
 
         floatingHead.visibleTo.addAll(nearbyPlayers)
-        floatingHeadMap[player] = floatingHead
+        floatingHeadMap[player.uniqueId] = floatingHead
     }
 
     fun removeFloatingHead(player: Player) {
         if (!isProtocolLibInstalled)
             return
 
-        if (!floatingHeadMap.containsKey(player))
+        if (!floatingHeadMap.containsKey(player.uniqueId))
             return
 
-        val floatingHead = floatingHeadMap[player] ?: return
+        val floatingHead = floatingHeadMap[player.uniqueId] ?: return
         val protocolManager = ProtocolLibrary.getProtocolManager()
 
         val destroyPacket = createDestroyPacket(floatingHead)
@@ -151,7 +151,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
             }
         }
 
-        floatingHeadMap.remove(player)
+        floatingHeadMap.remove(player.uniqueId)
     }
 
     private fun createPositionPacket(
