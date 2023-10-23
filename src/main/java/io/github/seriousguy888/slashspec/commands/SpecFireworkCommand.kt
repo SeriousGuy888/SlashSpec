@@ -73,7 +73,7 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
             }
         }
 
-        var spawnAtPlayer: Player? = null
+        var spawnAtPlayer: Player? = if (sender is Player) sender else null
 
         if (args.size >= 4) {
             if (!sender.hasPermission(adminPerm)) {
