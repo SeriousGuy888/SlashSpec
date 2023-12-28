@@ -8,6 +8,9 @@ import com.comphenix.protocol.wrappers.WrappedChatComponent
 import com.comphenix.protocol.wrappers.WrappedDataValue
 import com.comphenix.protocol.wrappers.WrappedDataWatcher
 import io.github.seriousguy888.slashspec.SlashSpec
+import io.github.seriousguy888.slashspec.packets.wrappers.WrapperPlayServerEntityMetadata
+import io.github.seriousguy888.slashspec.packets.wrappers.WrapperPlayServerEntityTeleport
+import io.github.seriousguy888.slashspec.packets.wrappers.WrapperPlayServerSpawnEntity
 import org.bukkit.Color
 import org.bukkit.GameMode
 import org.bukkit.Material
@@ -21,7 +24,7 @@ import java.util.*
 
 
 class FloatingHeadManager(private val plugin: SlashSpec) {
-    val floatingHeadMap = HashMap<UUID, FloatingHead>()
+    private val floatingHeadMap = HashMap<UUID, FloatingHead>()
     private val visibilityRange = 32.0
 
     private val isProtocolLibInstalled = plugin.isProtocolLibInstalled()
@@ -96,8 +99,8 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
                     visibleTo = hashSetOf()
                 )
 
-        val spawnPacket = createPositionPacket(true, player, floatingHead)
-        val teleportPacket = createPositionPacket(false, player, floatingHead)
+        val spawnPacket = createSpawnPacket(player, floatingHead)
+        val teleportPacket = createTeleportPacket(player, floatingHead)
         val metadataPacket = createMetadataPacket(player, floatingHead)
 
         val protocolManager = ProtocolLibrary.getProtocolManager()
@@ -106,10 +109,10 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
 
             try {
                 if (playerIsNewViewer) {
-                    protocolManager.sendServerPacket(it, spawnPacket)
+                    spawnPacket.sendPacket(it)
                 }
-                protocolManager.sendServerPacket(it, teleportPacket)
-                protocolManager.sendServerPacket(it, metadataPacket)
+                teleportPacket.sendPacket(it)
+                metadataPacket.sendPacket(it)
             } catch (e: InvocationTargetException) {
                 e.printStackTrace()
             }
@@ -146,6 +149,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         floatingHead.visibleTo.forEach {
             try {
                 protocolManager.sendServerPacket(it, destroyPacket)
+//                Bukkit.getLogger().info("Sent destroy packet for " + player.name + " to " + it.name)
             } catch (e: InvocationTargetException) {
                 e.printStackTrace()
             }
@@ -154,57 +158,45 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         floatingHeadMap.remove(player.uniqueId)
     }
 
-    private fun createPositionPacket(
-        isSpawnPacket: Boolean,
-        headOwner: Player,
-        floatingHead: FloatingHead
-    ): PacketContainer {
-        val protocolManager = ProtocolLibrary.getProtocolManager()
+    private fun createSpawnPacket(headOwner: Player, floatingHead: FloatingHead): WrapperPlayServerSpawnEntity {
+        val packet = WrapperPlayServerSpawnEntity()
 
-        val spawnOrTpPacket: PacketContainer
-        if (isSpawnPacket) {
-            spawnOrTpPacket = protocolManager.createPacket(PacketType.Play.Server.SPAWN_ENTITY)
-            spawnOrTpPacket.uuiDs.write(0, floatingHead.uuid)
-            spawnOrTpPacket.entityTypeModifier.write(0, EntityType.ITEM_DISPLAY)
-        } else {
-            spawnOrTpPacket = protocolManager.createPacket(PacketType.Play.Server.ENTITY_TELEPORT)
+        packet.uuid = floatingHead.uuid
+        packet.type = EntityType.ITEM_DISPLAY
+        packet.id = floatingHead.entityId
+        packet.x = headOwner.eyeLocation.x
+        packet.y = headOwner.eyeLocation.y + 0.25
+        packet.z = headOwner.eyeLocation.z
 
-            // https://www.spigotmc.org/threads/protocollib-named_entity_spawn-angle-field.280263/
-            // https://www.desmos.com/calculator/3ge37avign
-            spawnOrTpPacket.bytes.write(0, (headOwner.location.yaw * 256f / 360f + 128).toInt().toByte())
-            spawnOrTpPacket.bytes.write(1, (-headOwner.location.pitch * 256f / 360f).toInt().toByte())
-        }
-
-        spawnOrTpPacket.integers.write(0, floatingHead.entityId)
-
-        spawnOrTpPacket.doubles.write(0, headOwner.eyeLocation.x)
-        spawnOrTpPacket.doubles.write(1, headOwner.eyeLocation.y + 0.25)
-        spawnOrTpPacket.doubles.write(2, headOwner.eyeLocation.z)
-
-        return spawnOrTpPacket
+        return packet
     }
 
-    private fun createMetadataPacket(headOwner: Player, floatingHead: FloatingHead): PacketContainer? {
-        val protocolManager = ProtocolLibrary.getProtocolManager()
+    private fun createTeleportPacket(headOwner: Player, floatingHead: FloatingHead): WrapperPlayServerEntityTeleport {
+        val packet = WrapperPlayServerEntityTeleport()
 
-        val metadataPacket = protocolManager.createPacket(PacketType.Play.Server.ENTITY_METADATA)
-        metadataPacket.integers.write(0, floatingHead.entityId)
+        packet.xRot = (-headOwner.location.pitch * 256f / 360f).toInt().toByte()
+        packet.yRot = (headOwner.location.yaw * 256f / 360f + 128).toInt().toByte()
+        packet.id = floatingHead.entityId
+        packet.x = headOwner.eyeLocation.x
+        packet.y = headOwner.eyeLocation.y + 0.25
+        packet.z = headOwner.eyeLocation.z
 
+        return packet
+    }
+
+    private fun createMetadataPacket(headOwner: Player, floatingHead: FloatingHead): WrapperPlayServerEntityMetadata {
+        // https://wiki.vg/Entity_metadata#Entity_Metadata_Format
+
+        val packet = WrapperPlayServerEntityMetadata()
 
         val nameOpt = Optional.of(WrappedChatComponent.fromJson(headOwner.displayName).handle)
-        // If using PaperMC (ie: the teamDisplayName method is available), use that for the floating head
-        // name tag.
-//            Optional.of(AdventureComponentConverter.fromComponent(headOwner.teamDisplayName()).handle)
-//        } catch (e: NoSuchMethodError) {
-//            // If not, (ie: probably using Spigot), use the regular old displayName method.
-//            @Suppress("DEPRECATION")
-//        }
 
         val head = ItemStack(Material.PLAYER_HEAD)
         val headMeta = head.itemMeta as SkullMeta
         headMeta.owningPlayer = headOwner
         head.itemMeta = headMeta
 
+        // Remember to check these index numbers. It seems they might change pretty often between versions.
         val invisFlag = WrappedDataValue(
             0,
             WrappedDataWatcher.Registry.get(java.lang.Byte::class.java),
@@ -221,12 +213,12 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
             true
         )
         val displayedItem = WrappedDataValue(
-            22,
+            23, // Changed from 22 to make it work with 1.20.2
             WrappedDataWatcher.Registry.getItemStackSerializer(false),
             BukkitConverters.getItemStackConverter().getGeneric(head)
         ) // displayed item
         val displayType = WrappedDataValue(
-            23,
+            24, // Changed from 23 to make it work with 1.20.2.
             WrappedDataWatcher.Registry.get(java.lang.Byte::class.java),
             5.toByte()
         ) // 5 - display type head
@@ -238,9 +230,11 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
             displayedItem,
             displayType,
         )
-        metadataPacket.dataValueCollectionModifier.write(0, metadata)
 
-        return metadataPacket
+        packet.id = floatingHead.entityId
+        packet.packedItems = metadata
+
+        return packet
     }
 
     private fun createDestroyPacket(floatingHead: FloatingHead): PacketContainer {
