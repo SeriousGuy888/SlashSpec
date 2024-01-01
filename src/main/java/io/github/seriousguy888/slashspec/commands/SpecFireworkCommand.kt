@@ -55,8 +55,8 @@ class SpecFireworkCommand(private val plugin: SlashSpec) : SubCommand() {
             colour = Color.fromRGB(fwCol.hexInt)
         }
 
-        var isInstant = true
-        var flightDuration = 2
+        var isInstant = false
+        var flightDuration = 3
         if (args.size >= 3) {
             val durationArg = args[2]
             if (durationArg.equals("instant", true)) {
