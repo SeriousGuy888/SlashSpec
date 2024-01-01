@@ -3,6 +3,7 @@ package io.github.seriousguy888.slashspec
 import io.github.seriousguy888.slashspec.commands.SpecCommand
 import io.github.seriousguy888.slashspec.listeners.*
 import io.github.seriousguy888.slashspec.packets.FloatingHeadManager
+import io.github.seriousguy888.slashspec.state.CombatTimerManager
 import io.github.seriousguy888.slashspec.state.PlayerManager
 import io.github.seriousguy888.slashspec.state.PlayerPreferencesManager
 import io.github.seriousguy888.slashspec.state.PlayerStateManager
@@ -16,6 +17,7 @@ class SlashSpec : JavaPlugin() {
     val playerPrefsManager = PlayerPreferencesManager(this, File(dataFolder, "playerprefs.yml"))
     val playerStateManager = PlayerStateManager(this)
     val playerManager = PlayerManager(this)
+    val combatTimerManager = CombatTimerManager(this)
     val floatingHeadManager = FloatingHeadManager(this)
     val tabCompletionUtil = TabCompletionUtil(this)
     val configReader = ConfigReader(this)
@@ -36,6 +38,7 @@ class SlashSpec : JavaPlugin() {
 
     private fun registerListeners() {
         val pm = server.pluginManager
+        pm.registerEvents(CombatTimerListener(this), this)
         pm.registerEvents(EntityDamageByEntityListener(), this)
         pm.registerEvents(PlayerGameModeChangeListener(this), this)
         pm.registerEvents(PlayerMoveListener(this), this)

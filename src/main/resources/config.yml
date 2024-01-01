@@ -24,3 +24,7 @@ ghost-mode-default: false
 # Whether other people will be able to use `/spec tp` to teleport to a player by default.
 # Each player can toggle this for themselves with `/spec tptoggle`. This is the default value.
 teleportable-to-default: true
+
+# After a player hits another player or is hit by another player, for how long will they not be
+# allowed to enter spec? Set to 0 to disable this feature.
+combat-timer-seconds: 30

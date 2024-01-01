@@ -26,6 +26,20 @@ class SpecCommand(private val plugin: SlashSpec) : TabExecutor {
                 return true
             }
 
+            val combatTimeRemainingMillis = plugin.combatTimerManager.getTimeRemainingMillis(sender)
+            if (!plugin.playerManager.isPlayerInSpec(sender) && combatTimeRemainingMillis > 0) {
+                sender.spigot().sendMessage(
+                    *ComponentBuilder(
+                        "You cannot enter spec while in combat; " +
+                                "wait another " + (combatTimeRemainingMillis / 1000) +
+                                "s without attacking or being attacked by a player."
+                    )
+                        .color(ChatColor.RED)
+                        .create()
+                )
+                return false
+            }
+
             plugin.playerManager.toggleSpec(sender)
 
         } else {

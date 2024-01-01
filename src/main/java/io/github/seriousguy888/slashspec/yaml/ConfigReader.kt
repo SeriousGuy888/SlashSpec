@@ -33,4 +33,7 @@ class ConfigReader(private val plugin: SlashSpec) {
 
     val teleportableToDefault: Boolean
         get() = config.getBoolean("teleportable-to-default", true)
+
+    val combatTimerSeconds: Int
+        get() = config.getInt("combat-timer-seconds", 30)
 }
