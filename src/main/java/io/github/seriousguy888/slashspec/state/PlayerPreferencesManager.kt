@@ -28,20 +28,22 @@ class PlayerPreferencesManager(
         map.forEach {
             val serialisation = HashMap<String, Any>()
             serialisation["isGhostMode"] = it.value.isGhostMode
+            serialisation["isTeleportableTo"] = it.value.isTeleportableTo
             yamlConfig.set(it.key, serialisation)
         }
 
         yamlConfig.save(prefsFileLoc)
     }
 
-    fun load() {
+    private fun load() {
         val keys = yamlConfig.getKeys(false)
 
         keys.forEach { uuid ->
             val section = yamlConfig.getConfigurationSection(uuid) ?: return@forEach
 
             val state = PlayerPrefs(
-                isGhostMode = section.getBoolean("isGhostMode", true)
+                isGhostMode = section.getBoolean("isGhostMode", false),
+                isTeleportableTo = section.getBoolean("isTeleportableTo", true)
             )
 
             map[uuid] = state

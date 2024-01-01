@@ -15,8 +15,12 @@ use-floating-head: true
 # a particle trail otherwise.
 #
 # if true:  Spectators will be invisible to non-spectators by default.
-# if false: ========== ==== ==   visible == ============== == =======.
+# if false:                      visible
 #
 # Players can still change this preference for themselves by using /spec ghost if they have
 # the required permissions.
 ghost-mode-default: false
+
+# Whether other people will be able to use `/spec tp` to teleport to a player by default.
+# Each player can toggle this for themselves with `/spec tptoggle`. This is the default value.
+teleportable-to-default: true

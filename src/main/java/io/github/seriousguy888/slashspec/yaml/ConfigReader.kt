@@ -30,4 +30,7 @@ class ConfigReader(private val plugin: SlashSpec) {
 
     val ghostModeDefault: Boolean
         get() = config.getBoolean("ghost-mode-default", false)
+
+    val teleportableToDefault: Boolean
+        get() = config.getBoolean("teleportable-to-default", true)
 }

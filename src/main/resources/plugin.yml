@@ -45,3 +45,11 @@ permissions:
     children:
       slashspec.ghost.others:
         default: op
+  slashspec.teleport:
+    default: true
+    children:
+      slashspec.teleport.toggle:
+        default: true
+        children:
+          slashspec.teleport.toggle.others:
+            default: op

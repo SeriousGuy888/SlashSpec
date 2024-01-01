@@ -39,6 +39,14 @@ class PlayerManager(private val plugin: SlashSpec) {
         return prefs.isGhostMode
     }
 
+    fun toggleTeleportableTo(player: Player, to: Boolean? = null): Boolean {
+        val prefs = plugin.playerPrefsManager.get(player)
+        prefs.isTeleportableTo = to ?: !prefs.isTeleportableTo
+        plugin.playerPrefsManager.set(player, prefs)
+
+        return prefs.isTeleportableTo
+    }
+
     private fun putPlayerIntoSpec(player: Player): Boolean {
         if (player.gameMode == GameMode.SPECTATOR) {
             return false
