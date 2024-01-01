@@ -31,6 +31,25 @@ Spiritual successor to https://github.com/ohowe1/SpectatorModeRewrite, which is 
 - Turn on ghost mode to turn off the floating head feature that makes you visible to other players.
 - Admins can toggle ghost mode for other people. Permission: `slashspec.ghost.others`
 
+### Teleport `/spec tp`
+> Permission Node: `slashspec.teleport`
+> 
+> Syntax: `/spec tp <player>`
+
+- Allows you to teleport to another player while you are in spec.
+- The other player can disable this, if desired, using `/spec tptoggle`.
+
+### Toggle Teleportation `/spec tptoggle`
+> Permission Node: `slashspec.teleport.toggle`
+> 
+> Syntax: `/spec tptoggle [<enable/disable>]`
+
+- Toggle whether other players are allowed to teleport to you (or another player, for admins).
+- If disabled, other people will not be able to use `/spec tp` to teleport to you.
+- Admins can toggle this for other people.
+  - Syntax: `/spec tptoggle [<enable/disable>] [<player>]`
+  - Permission: `slashspec.teleport.toggle.others`
+
 ### Fireworks `/spec firework`
 > Permission Node: `slashspec.firework`
 > 
@@ -50,6 +69,10 @@ The spectator mode hotbar teleport menu is a feature that is apparently not that
 >  _From the [Minecraft Wiki](https://minecraft.fandom.com/wiki/Spectator#GUIs)_
 
 However, as players in spectator mode might be able to use it to teleport to whoever they wish, this plugin makes the menu not usable by default. Attempting to teleport using the menu will not work unless the player specifically has the permission node granted. Server operators are not affected by this.
+
+### Combat Tagging
+
+Players will not be able to enter enter spec if they have recently (30 seconds by default, changeable in `config.yml`) been attacked by another player or if they have recently attacked another player. This is useful if players are abusing spec to escape combat situations. This will work for both melee and ranged attacks.
 
 ## ProtocolLib Dependency
 ProtocolLib is an optional dependency for this plugin, but **_it is required for the floating heads feature to work_**.
