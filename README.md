@@ -66,7 +66,7 @@ The spectator mode hotbar teleport menu is a feature that is apparently not that
 
 > If a number key is pressed, the player can teleport to a specific player on that server by pressing `1`, or the player can teleport to a team member by pressing `2` and afterward clicking on the number of the player twice to be teleported or once to see their name.
 >
->  _From the [Minecraft Wiki](https://minecraft.fandom.com/wiki/Spectator#GUIs)_
+>  _From the [Minecraft Wiki](https://minecraft.wiki/w/Spectator#GUIs)_
 
 However, as players in spectator mode might be able to use it to teleport to whoever they wish, this plugin makes the menu not usable by default. Attempting to teleport using the menu will not work unless the player specifically has the permission node granted. Server operators are not affected by this.
 
