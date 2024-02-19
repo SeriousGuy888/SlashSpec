@@ -36,4 +36,7 @@ class ConfigReader(private val plugin: SlashSpec) {
 
     val combatTimerSeconds: Int
         get() = config.getInt("combat-timer-seconds", 30)
+
+    val shouldPreventVoidDamage: Boolean
+        get() = config.getBoolean("prevent-void-damage-in-spec", true)
 }

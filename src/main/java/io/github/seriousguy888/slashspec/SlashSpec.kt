@@ -44,6 +44,7 @@ class SlashSpec : JavaPlugin() {
         pm.registerEvents(PlayerMoveListener(this), this)
         pm.registerEvents(PlayerQuitListener(this), this)
         pm.registerEvents(PlayerTeleportListener(), this)
+        pm.registerEvents(VoidDamageListener(this), this)
     }
 
     private fun registerTasks() {

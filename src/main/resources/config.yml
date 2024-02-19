@@ -28,3 +28,7 @@ teleportable-to-default: true
 # After a player hits another player or is hit by another player, for how long will they not be
 # allowed to enter spec? Set to 0 to disable this feature.
 combat-timer-seconds: 30
+
+# Whether players using `/spec` will be immune from the damage applied when players fall into
+# the void. This will only apply when using this plugin's custom spectator mode.
+prevent-void-damage-in-spec: true
