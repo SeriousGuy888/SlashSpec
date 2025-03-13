@@ -7,7 +7,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 group = "io.github.seriousguy888"
 version = "1.2.1"
 description = "SlashSpec"
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 application {
     val name = "io.github.seriousguy888.slashspec"
@@ -26,7 +26,7 @@ application {
 plugins {
     `java-library`
     `maven-publish`
-    kotlin("jvm") version "1.9.0"
+    kotlin("jvm") version "1.9.20"
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("application")
 }
@@ -49,20 +49,21 @@ val shadowJar = tasks.named<ShadowJar>("shadowJar") {
 
 repositories {
     maven {
-        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+        name = "papermc"
+        url = uri("https://repo.papermc.io/repository/maven-public/")
     }
 
-    maven {
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
-    }
-
-    maven {
-        url = uri("https://oss.sonatype.org/content/repositories/central")
-    }
-
-    maven {
-        url = uri("https://oss.sonatype.org/content/groups/public/")
-    }
+//    maven {
+//        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+//    }
+//
+//    maven {
+//        url = uri("https://oss.sonatype.org/content/repositories/central")
+//    }
+//
+//    maven {
+//        url = uri("https://oss.sonatype.org/content/groups/public/")
+//    }
 
     maven {
         url = uri("https://repo.dmulloy2.net/repository/public/")
@@ -86,7 +87,7 @@ dependencies {
 
     testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
 
-    compileOnly("org.spigotmc:spigot-api:1.20.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
 //    compileOnly("com.comphenix.packetwrapper:PacketWrapper:1.20-2.2.1")
 }
@@ -110,5 +111,5 @@ tasks.withType<Javadoc> {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
