@@ -6,7 +6,7 @@ description: |
 author: SeriousGuy888 (billzonium trioxide)
 website: https://github.com/SeriousGuy888/SlashSpec
 
-version: "1.2.1"
+version: "1.2.2"
 main: io.github.seriousguy888.slashspec.SlashSpec
 api-version: 1.21
 load: POSTWORLD

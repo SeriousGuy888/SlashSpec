@@ -79,7 +79,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
             // Spawn particles for everyone nearby except the spectator.
             nearbyPlayers.forEach {
                 it.spawnParticle(
-                    Particle.REDSTONE,
+                    Particle.DUST,
                     player.eyeLocation,
                     25,
                     dustOptions

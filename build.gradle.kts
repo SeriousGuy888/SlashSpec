@@ -5,7 +5,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
  */
 
 group = "io.github.seriousguy888"
-version = "1.2.1"
+version = "1.2.2"
 description = "SlashSpec"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
@@ -27,7 +27,7 @@ plugins {
     `java-library`
     `maven-publish`
     kotlin("jvm") version "1.9.20"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+//    id("com.gradleup.shadow") version "9.0.0-beta10"
     id("application")
 }
 
@@ -53,17 +53,17 @@ repositories {
         url = uri("https://repo.papermc.io/repository/maven-public/")
     }
 
-//    maven {
-//        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
-//    }
-//
-//    maven {
-//        url = uri("https://oss.sonatype.org/content/repositories/central")
-//    }
-//
-//    maven {
-//        url = uri("https://oss.sonatype.org/content/groups/public/")
-//    }
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+    }
+
+    maven {
+        url = uri("https://oss.sonatype.org/content/repositories/central")
+    }
+
+    maven {
+        url = uri("https://oss.sonatype.org/content/groups/public/")
+    }
 
     maven {
         url = uri("https://repo.dmulloy2.net/repository/public/")
@@ -83,13 +83,12 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation("com.google.code.gson:gson:2.10.1")
 
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.0")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.20")
 
-    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.0")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:1.9.20")
 
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
-//    compileOnly("com.comphenix.packetwrapper:PacketWrapper:1.20-2.2.1")
 }
 
 publishing {
