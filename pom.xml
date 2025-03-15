@@ -139,11 +139,4 @@
             <url>https://repo.maven.apache.org/maven2/</url>
         </repository>
     </repositories>
-
-    <distributionManagement>
-        <repository>
-            <id>maven-releases</id>
-            <url>...</url>
-        </repository>
-    </distributionManagement>
 </project>
