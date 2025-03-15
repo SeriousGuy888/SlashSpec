@@ -12,13 +12,10 @@ import io.github.seriousguy888.slashspec.SlashSpec
 import io.github.seriousguy888.slashspec.packets.wrappers.WrapperPlayServerEntityMetadata
 import io.github.seriousguy888.slashspec.packets.wrappers.WrapperPlayServerEntityTeleport
 import io.github.seriousguy888.slashspec.packets.wrappers.WrapperPlayServerSpawnEntity
-import org.bukkit.Color
-import org.bukkit.GameMode
-import org.bukkit.Location
-import org.bukkit.Material
-import org.bukkit.Particle
+import org.bukkit.*
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
+import org.bukkit.util.Vector
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.SkullMeta
 import java.lang.reflect.InvocationTargetException
@@ -30,7 +27,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
     private val visibilityRange = 32.0
 
     private val isProtocolLibInstalled = plugin.isProtocolLibInstalled()
-    private var isProtocolLibWorking = false
+    private var isProtocolLibWorking = true
 
     // fallback particles if protocollib is not installed
     private val dustOptions = Particle.DustOptions(Color.WHITE, 1f)
@@ -190,14 +187,10 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
     private fun createTeleportPacket(headOwner: Player, floatingHead: FloatingHead): WrapperPlayServerEntityTeleport {
         val packet = WrapperPlayServerEntityTeleport()
 
-        packet.xRot = (-headOwner.location.pitch * 256f / 360f).toInt().toByte()
-        packet.yRot = (headOwner.location.yaw * 256f / 360f + 128).toInt().toByte()
-//        packet.xRot = (-headOwner.location.pitch * 256f / 360f).toInt().toByte()
-//        packet.yRot = (headOwner.location.yaw * 256f / 360f + 128).toInt().toByte()
+        // Stopgap fix: https://github.com/dmulloy2/ProtocolLib/issues/3341#issuecomment-2580832502
         packet.id = floatingHead.entityId
-        packet.x = headOwner.eyeLocation.x
-        packet.y = headOwner.eyeLocation.y + 0.25
-        packet.z = headOwner.eyeLocation.z
+        packet.setLocation(headOwner.eyeLocation.x, headOwner.eyeLocation.y + 0.25f, headOwner.eyeLocation.z)
+        packet.setRotation((headOwner.location.yaw + 180) % 360, -headOwner.location.pitch)
 
         return packet
     }
