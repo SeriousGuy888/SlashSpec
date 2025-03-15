@@ -3,6 +3,7 @@ package io.github.seriousguy888.slashspec.packets
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.PacketContainer
+import com.comphenix.protocol.reflect.FieldAccessException
 import com.comphenix.protocol.wrappers.BukkitConverters
 import com.comphenix.protocol.wrappers.WrappedChatComponent
 import com.comphenix.protocol.wrappers.WrappedDataValue
@@ -13,6 +14,7 @@ import io.github.seriousguy888.slashspec.packets.wrappers.WrapperPlayServerEntit
 import io.github.seriousguy888.slashspec.packets.wrappers.WrapperPlayServerSpawnEntity
 import org.bukkit.Color
 import org.bukkit.GameMode
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Particle
 import org.bukkit.entity.EntityType
@@ -28,6 +30,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
     private val visibilityRange = 32.0
 
     private val isProtocolLibInstalled = plugin.isProtocolLibInstalled()
+    private var isProtocolLibWorking = false
 
     // fallback particles if protocollib is not installed
     private val dustOptions = Particle.DustOptions(Color.WHITE, 1f)
@@ -75,17 +78,9 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         //
         // Or, if config.yml says not to use the floating head feature, then use the
         // particles and return.
-        if (!isProtocolLibInstalled || !plugin.configReader.shouldUseFloatingHead) {
+        if (!isProtocolLibInstalled || !plugin.configReader.shouldUseFloatingHead || !isProtocolLibWorking) {
             // Spawn particles for everyone nearby except the spectator.
-            nearbyPlayers.forEach {
-                it.spawnParticle(
-                    Particle.DUST,
-                    player.eyeLocation,
-                    25,
-                    dustOptions
-                )
-            }
-
+            displayParticlesInstead(player.eyeLocation, nearbyPlayers)
             return
         }
 
@@ -99,39 +94,60 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
                     visibleTo = hashSetOf()
                 )
 
-        val spawnPacket = createSpawnPacket(player, floatingHead)
-        val teleportPacket = createTeleportPacket(player, floatingHead)
-        val metadataPacket = createMetadataPacket(player, floatingHead)
 
-        val protocolManager = ProtocolLibrary.getProtocolManager()
-        nearbyPlayers.forEach {
-            val playerIsNewViewer = !floatingHead.visibleTo.contains(it) && nearbyPlayers.contains(it)
+        try {
+            val spawnPacket = createSpawnPacket(player, floatingHead)
+            val teleportPacket = createTeleportPacket(player, floatingHead)
+            val metadataPacket = createMetadataPacket(player, floatingHead)
 
-            try {
-                if (playerIsNewViewer) {
-                    spawnPacket.sendPacket(it)
-                }
-                teleportPacket.sendPacket(it)
-                metadataPacket.sendPacket(it)
-            } catch (e: InvocationTargetException) {
-                e.printStackTrace()
-            }
-        }
+            val protocolManager = ProtocolLibrary.getProtocolManager()
+            nearbyPlayers.forEach {
+                val playerIsNewViewer = !floatingHead.visibleTo.contains(it) && nearbyPlayers.contains(it)
 
-        val destroyPacket = createDestroyPacket(floatingHead)
-        floatingHead.visibleTo
-            .filter { !nearbyPlayers.contains(it) }
-            .forEach {
-                floatingHead.visibleTo.remove(it)
                 try {
-                    protocolManager.sendServerPacket(it, destroyPacket)
+                    if (playerIsNewViewer) {
+                        spawnPacket.sendPacket(it)
+                    }
+                    teleportPacket.sendPacket(it)
+                    metadataPacket.sendPacket(it)
                 } catch (e: InvocationTargetException) {
                     e.printStackTrace()
                 }
             }
 
-        floatingHead.visibleTo.addAll(nearbyPlayers)
-        floatingHeadMap[player.uniqueId] = floatingHead
+            val destroyPacket = createDestroyPacket(floatingHead)
+            floatingHead.visibleTo
+                .filter { !nearbyPlayers.contains(it) }
+                .forEach {
+                    floatingHead.visibleTo.remove(it)
+                    try {
+                        protocolManager.sendServerPacket(it, destroyPacket)
+                    } catch (e: InvocationTargetException) {
+                        e.printStackTrace()
+                    }
+                }
+
+            floatingHead.visibleTo.addAll(nearbyPlayers)
+            floatingHeadMap[player.uniqueId] = floatingHead
+        } catch (e: FieldAccessException) {
+            isProtocolLibWorking = false
+            plugin.logger.severe(e.stackTraceToString())
+            plugin.logger.warning(
+                "ProtocolLib is not working properly. " +
+                        "SlashSpec will display particles instead of floating heads."
+            )
+        }
+    }
+
+    private fun displayParticlesInstead(location: Location, seeingPlayers: List<Player>) {
+        seeingPlayers.forEach {
+            it.spawnParticle(
+                Particle.DUST,
+                location,
+                25,
+                dustOptions
+            )
+        }
     }
 
     fun removeFloatingHead(player: Player) {
@@ -176,6 +192,8 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
 
         packet.xRot = (-headOwner.location.pitch * 256f / 360f).toInt().toByte()
         packet.yRot = (headOwner.location.yaw * 256f / 360f + 128).toInt().toByte()
+//        packet.xRot = (-headOwner.location.pitch * 256f / 360f).toInt().toByte()
+//        packet.yRot = (headOwner.location.yaw * 256f / 360f + 128).toInt().toByte()
         packet.id = floatingHead.entityId
         packet.x = headOwner.eyeLocation.x
         packet.y = headOwner.eyeLocation.y + 0.25
