@@ -27,7 +27,6 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
     private val visibilityRange = 32.0
 
     private val isProtocolLibInstalled = plugin.isProtocolLibInstalled()
-    private var isProtocolLibWorking = true
 
     // fallback particles if protocollib is not installed
     private val dustOptions = Particle.DustOptions(Color.WHITE, 1f)
@@ -75,7 +74,7 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
         //
         // Or, if config.yml says not to use the floating head feature, then use the
         // particles and return.
-        if (!isProtocolLibInstalled || !plugin.configReader.shouldUseFloatingHead || !isProtocolLibWorking) {
+        if (!isProtocolLibInstalled || !plugin.configReader.shouldUseFloatingHead) {
             // Spawn particles for everyone nearby except the spectator.
             displayParticlesInstead(player.eyeLocation, nearbyPlayers)
             return
@@ -92,48 +91,39 @@ class FloatingHeadManager(private val plugin: SlashSpec) {
                 )
 
 
-        try {
-            val spawnPacket = createSpawnPacket(player, floatingHead)
-            val teleportPacket = createTeleportPacket(player, floatingHead)
-            val metadataPacket = createMetadataPacket(player, floatingHead)
+        val spawnPacket = createSpawnPacket(player, floatingHead)
+        val teleportPacket = createTeleportPacket(player, floatingHead)
+        val metadataPacket = createMetadataPacket(player, floatingHead)
 
-            val protocolManager = ProtocolLibrary.getProtocolManager()
-            nearbyPlayers.forEach {
-                val playerIsNewViewer = !floatingHead.visibleTo.contains(it) && nearbyPlayers.contains(it)
+        val protocolManager = ProtocolLibrary.getProtocolManager()
+        nearbyPlayers.forEach {
+            val playerIsNewViewer = !floatingHead.visibleTo.contains(it) && nearbyPlayers.contains(it)
 
+            try {
+                if (playerIsNewViewer) {
+                    spawnPacket.sendPacket(it)
+                }
+                teleportPacket.sendPacket(it)
+                metadataPacket.sendPacket(it)
+            } catch (e: InvocationTargetException) {
+                e.printStackTrace()
+            }
+        }
+
+        val destroyPacket = createDestroyPacket(floatingHead)
+        floatingHead.visibleTo
+            .filter { !nearbyPlayers.contains(it) }
+            .forEach {
+                floatingHead.visibleTo.remove(it)
                 try {
-                    if (playerIsNewViewer) {
-                        spawnPacket.sendPacket(it)
-                    }
-                    teleportPacket.sendPacket(it)
-                    metadataPacket.sendPacket(it)
+                    protocolManager.sendServerPacket(it, destroyPacket)
                 } catch (e: InvocationTargetException) {
                     e.printStackTrace()
                 }
             }
 
-            val destroyPacket = createDestroyPacket(floatingHead)
-            floatingHead.visibleTo
-                .filter { !nearbyPlayers.contains(it) }
-                .forEach {
-                    floatingHead.visibleTo.remove(it)
-                    try {
-                        protocolManager.sendServerPacket(it, destroyPacket)
-                    } catch (e: InvocationTargetException) {
-                        e.printStackTrace()
-                    }
-                }
-
-            floatingHead.visibleTo.addAll(nearbyPlayers)
-            floatingHeadMap[player.uniqueId] = floatingHead
-        } catch (e: FieldAccessException) {
-            isProtocolLibWorking = false
-            plugin.logger.severe(e.stackTraceToString())
-            plugin.logger.warning(
-                "ProtocolLib is not working properly. " +
-                        "SlashSpec will display particles instead of floating heads."
-            )
-        }
+        floatingHead.visibleTo.addAll(nearbyPlayers)
+        floatingHeadMap[player.uniqueId] = floatingHead
     }
 
     private fun displayParticlesInstead(location: Location, seeingPlayers: List<Player>) {
