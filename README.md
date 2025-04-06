@@ -1,5 +1,5 @@
 # SlashSpec
-A Minecraft Spigot plugin to allow players to temporarily fly around in spectator mode on an SMP server while being visible to non-spectators.
+A Minecraft Paper plugin to allow players to temporarily fly around in spectator mode on an SMP server while being visible to non-spectators.
 
 This plugin is intended as a spiritual successor to [SMP Spectator Mode](https://www.spigotmc.org/resources/smp-spectator-mode-1-19-support.77267/), which is a plugin I used, but which is no longer maintained :(
 
