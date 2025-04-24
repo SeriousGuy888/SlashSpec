@@ -5,6 +5,10 @@ This plugin is intended as a spiritual successor to [SMP Spectator Mode](https:/
 
 `config.yml` file with comments [here](https://github.com/SeriousGuy888/SlashSpec/blob/main/src/main/resources/config.yml).
 
+## Short Demo
+
+Here's a [really short video demo](https://www.youtube.com/watch?v=vLJpfWCbtQg) of some of the plugin's features in action.
+
 ## Features
 
 ### Main `/spec` command
