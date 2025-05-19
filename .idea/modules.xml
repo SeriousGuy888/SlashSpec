@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/SlashSpec.iml" filepath="$PROJECT_DIR$/.idea/SlashSpec.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/SlashSpec.main.iml" filepath="$PROJECT_DIR$/.idea/modules/SlashSpec.main.iml" />
     </modules>
   </component>
 </project>

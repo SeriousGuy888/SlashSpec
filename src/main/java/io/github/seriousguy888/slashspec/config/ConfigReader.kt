@@ -1,4 +1,4 @@
-package io.github.seriousguy888.slashspec.yaml
+package io.github.seriousguy888.slashspec.config
 
 import io.github.seriousguy888.slashspec.SlashSpec
 

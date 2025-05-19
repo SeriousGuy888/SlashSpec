@@ -1,13 +1,13 @@
 package io.github.seriousguy888.slashspec
 
 import io.github.seriousguy888.slashspec.commands.SpecCommand
+import io.github.seriousguy888.slashspec.config.ConfigReader
 import io.github.seriousguy888.slashspec.listeners.*
 import io.github.seriousguy888.slashspec.packets.FloatingHeadManager
 import io.github.seriousguy888.slashspec.state.CombatTimerManager
 import io.github.seriousguy888.slashspec.state.PlayerManager
 import io.github.seriousguy888.slashspec.state.PlayerPreferencesManager
 import io.github.seriousguy888.slashspec.state.PlayerStateManager
-import io.github.seriousguy888.slashspec.yaml.ConfigReader
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitRunnable
