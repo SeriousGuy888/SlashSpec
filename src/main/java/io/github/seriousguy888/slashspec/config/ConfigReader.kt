@@ -11,18 +11,22 @@ class ConfigReader(private val plugin: SlashSpec) {
 
         val defaultKeys = defaults!!.getKeys(true)
 
-        var needsSaving = false
         defaultKeys.forEach { path ->
             val isPresentInConfig = config.getKeys(true).contains(path)
             if (!isPresentInConfig) {
                 config[path!!] = defaults.get(path)
-                needsSaving = true
             }
         }
 
-        if(needsSaving) {
-            plugin.saveConfig()
-        }
+        // Copy comments from the default config
+        config
+            .getKeys(true)
+            .forEach { key ->
+                config.setComments(key, defaults.getComments(key))
+                config.setInlineComments(key, defaults.getInlineComments(key))
+            }
+
+        plugin.saveConfig()
     }
 
     val shouldUseFloatingHead: Boolean
