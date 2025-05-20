@@ -63,7 +63,7 @@ Here's a [really short video demo](https://www.youtube.com/watch?v=vLJpfWCbtQg) 
 - You don't have to be in spectator mode to use it (although you do need the permission node)
 - Admins can launch fireworks at other people's locations. Permission: `slashspec.firework.others`
 
-### The spectator mode hotbar teleport teleportation menu is disabled by default.
+### The built-in spectator mode hotbar teleportation menu is disabled by default.
 > Permission Node: `slashspec.use_hotbar_teleport_menu` (denied by default)
 
 The spectator mode hotbar teleport menu is a feature that is apparently not that well known.
